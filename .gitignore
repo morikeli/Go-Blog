@@ -1,0 +1,30 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+
+# Test binary, built with 'go test -c'
+*.test
+
+# Output of the go coverage tool, when using 'go test -coverprofile=cov.out'
+*.out
+
+# Dependency directories (optional; usually committed in Go, but good to ignore caches)
+vendor/
+
+# Environment variables file (contains secrets/configuration)
+.env
+
+# IDEs and Editors
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
