@@ -6,5 +6,5 @@ import (
 
 type LoginResponse struct {
 	AccessToken  string `json:"access_token"`
-	User         *store.User  `json:"user"`
+	User         UserResponse `json:"user"`
 }

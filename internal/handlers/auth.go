@@ -66,9 +66,17 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 			SameSite: http.SameSiteLaxMode,  // Protection against CSRF attacks
 		})
 
+		userResponse := responses.UserResponse{
+			ID:        user.ID,
+			Username:  user.Username,
+			Email:     user.Email,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+		}
+
 		loginResponse := responses.LoginResponse{
 			AccessToken: accessToken,
-			User: &user,
+			User:        userResponse,
 		}
 		responses.Success(w, http.StatusOK, "Login successful! Welcome back.", loginResponse)
 	}
