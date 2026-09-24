@@ -18,6 +18,12 @@ func main() {
 		log.Fatalf("Failed to load project configuration file: %v", err)
 	}
 
+	// connect to db
+	database := db.ConnectDb(cfg.DatabaseURL)
+	defer database.Close()
+
+	queries := store.New(database)
+
 	// set up http server
 	mux := http.NewServeMux()
 
