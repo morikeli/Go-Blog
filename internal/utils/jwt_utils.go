@@ -43,7 +43,6 @@ func (m *TokenMaker) generateToken(userId int64, username string, tokenType Toke
 			IssuedAt:  jwt.NewNumericDate(now),
 			NotBefore: jwt.NewNumericDate(now),
 			Issuer:    m.issuer,
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
 
