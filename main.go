@@ -21,9 +21,10 @@ func main() {
 	// set up http server
 	mux := http.NewServeMux()
 
-	// create new handler
-	handler := handlers.NewHandler()
-	
+	// create new handler & token maker
+	tokenMaker := utils.NewTokenMaker(cfg.SecretKey, cfg.JwtIssuer)
+	handler := handlers.NewHandler(database, queries, tokenMaker)
+
 	// routers
 	routes.SetupHealthRoute(mux, handler)
 
