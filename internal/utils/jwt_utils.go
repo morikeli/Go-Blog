@@ -6,6 +6,12 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type TokenType string
+
+const (
+	AccessToken  TokenType = "access"
+	RefreshToken TokenType = "refresh"
+)
 type TokenMaker struct {
 	secretKey []byte
 	issuer    string
@@ -14,6 +20,7 @@ type TokenMaker struct {
 type Claims struct {
 	UserId int64 `json:"user_id"`
 	Username string `json:"username"`
+	TokenType TokenType `json:"token_type"`
 	jwt.RegisteredClaims
 }
 
