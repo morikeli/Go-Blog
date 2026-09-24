@@ -40,7 +40,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 		}
 
 		// Generate JWT token
-		token, err := h.TokenMaker.GenerateToken(int64(user.ID), req.Username)
+		accessToken, err := h.TokenMaker.GenerateAccessToken(int64(user.ID), user.Username, 15*time.Minute)
 
 		if err != nil {
 			responses.Error(w, http.StatusInternalServerError, err.Error())
