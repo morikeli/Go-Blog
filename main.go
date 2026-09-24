@@ -41,7 +41,7 @@ func main() {
 	// server address
 	serverAddr := fmt.Sprintf(":%s", cfg.ServerPort)
 	server := &http.Server{
-		Addr: serverAddr,
+		Addr:    serverAddr,
 		Handler: mux,
 	}
 
