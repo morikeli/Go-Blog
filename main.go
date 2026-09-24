@@ -6,8 +6,11 @@ import (
 	"net/http"
 
 	"github.com/morikeli/golangrestapi/internal/config"
+	"github.com/morikeli/golangrestapi/internal/db"
 	"github.com/morikeli/golangrestapi/internal/handlers"
 	"github.com/morikeli/golangrestapi/internal/routes"
+	"github.com/morikeli/golangrestapi/internal/store"
+	"github.com/morikeli/golangrestapi/internal/utils"
 )
 
 func main() {
