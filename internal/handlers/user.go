@@ -43,7 +43,14 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 		accessToken, err := h.TokenMaker.GenerateAccessToken(int64(user.ID), user.Username, 15*time.Minute)
 
 		if err != nil {
-			responses.Error(w, http.StatusInternalServerError, err.Error())
+			responses.Error(w, http.StatusInternalServerError, "An error occurred while generating access token!")
+			return
+		}
+		
+		refreshToken, err := h.TokenMaker.GenerateRefreshToken(int64(user.ID), user.Username, 7*24*time.Hour)
+
+		if err != nil {
+			responses.Error(w, http.StatusInternalServerError, "An error occurred while generating refresh token!")
 			return
 		}
 
