@@ -8,12 +8,12 @@ import (
 )
 
 type Config struct {
-	ServerPort string
+	ServerPort  string
 	DatabaseURL string
 	Environment string
-	LogLevel string
-	SecretKey string
-	JwtIssuer string
+	LogLevel    string
+	SecretKey   string
+	JwtIssuer   string
 }
 
 func LoadConfig() (*Config, error) {
@@ -21,15 +21,15 @@ func LoadConfig() (*Config, error) {
 		return nil, fmt.Errorf("Error getting environment variables! \n %v", err)
 	}
 
-	config := &Config {
-		JwtIssuer: os.Getenv("JWT_ISSUER"),
-		SecretKey: os.Getenv("SECRET_KEY"),
-		ServerPort: os.Getenv("SERVER_PORT"),
+	config := &Config{
+		JwtIssuer:   os.Getenv("JWT_ISSUER"),
+		SecretKey:   os.Getenv("SECRET_KEY"),
+		ServerPort:  os.Getenv("SERVER_PORT"),
 		DatabaseURL: os.Getenv("DATABASE_URL"),
-		Environment: os.Getenv("ENVIRONMENT"),	// dev, prod environment
-		LogLevel: os.Getenv("LOG_LEVEL"),	// debug, info, warn, error
+		Environment: os.Getenv("ENVIRONMENT"), // dev, prod environment
+		LogLevel:    os.Getenv("LOG_LEVEL"),   // debug, info, warn, error
 	}
 
 	return config, nil
-	
+
 }

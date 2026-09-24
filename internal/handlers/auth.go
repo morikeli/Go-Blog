@@ -47,7 +47,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 			responses.Error(w, http.StatusInternalServerError, "An error occurred while generating access token!")
 			return
 		}
-		
+
 		refreshToken, err := h.TokenMaker.GenerateRefreshToken(int64(user.ID), user.Username, 7*24*time.Hour)
 
 		if err != nil {
@@ -61,9 +61,9 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 			Value:    refreshToken,
 			Path:     "/auth/refreshToken", // Restrict cookie scope exclusively to the refresh endpoint
 			Expires:  time.Now().Add(7 * 24 * time.Hour),
-			HttpOnly: true,                  // JavaScript cannot read this cookie (XSS protection)
-			Secure:   true,                  // Requires HTTPS in production
-			SameSite: http.SameSiteLaxMode,  // Protection against CSRF attacks
+			HttpOnly: true,                 // JavaScript cannot read this cookie (XSS protection)
+			Secure:   true,                 // Requires HTTPS in production
+			SameSite: http.SameSiteLaxMode, // Protection against CSRF attacks
 		})
 
 		userResponse := responses.UserResponse{
@@ -132,7 +132,7 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 		}
 
 		// Generate a fresh Access Token
-		newAccessToken, err := h.TokenMaker.GenerateAccessToken(claims.UserId, claims.Username, 15 * time.Minute)
+		newAccessToken, err := h.TokenMaker.GenerateAccessToken(claims.UserId, claims.Username, 15*time.Minute)
 		if err != nil {
 			responses.Error(w, http.StatusInternalServerError, "Failed to issue new token")
 			return

@@ -13,14 +13,15 @@ const (
 	AccessToken  TokenType = "access"
 	RefreshToken TokenType = "refresh"
 )
+
 type TokenMaker struct {
 	secretKey []byte
 	issuer    string
 }
 
 type Claims struct {
-	UserId int64 `json:"user_id"`
-	Username string `json:"username"`
+	UserId    int64     `json:"user_id"`
+	Username  string    `json:"username"`
 	TokenType TokenType `json:"token_type"`
 	jwt.RegisteredClaims
 }

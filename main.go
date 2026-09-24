@@ -37,6 +37,7 @@ func main() {
 	// routers
 	routes.SetupHealthRoute(mux, handler)
 	routes.SetupAuthRoutes(mux, handler)
+	routes.SetupUserRoutes(mux, handler)
 
 	// server address
 	serverAddr := fmt.Sprintf(":%s", cfg.ServerPort)

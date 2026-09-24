@@ -10,6 +10,5 @@ func (h *Handler) CheckServerHealthHandler(w http.ResponseWriter, r *http.Reques
 
 	response := map[string]string{"status": "OK!", "message": "App ran successfully!"}
 	json.NewEncoder(w).Encode(response)
-	
-}
 
+}
