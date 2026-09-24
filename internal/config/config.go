@@ -12,6 +12,8 @@ type Config struct {
 	DatabaseURL string
 	Environment string
 	LogLevel string
+	SecretKey string
+	JwtIssuer string
 }
 
 func LoadConfig() (*Config, error) {
@@ -20,6 +22,8 @@ func LoadConfig() (*Config, error) {
 	}
 
 	config := &Config {
+		JwtIssuer: os.Getenv("JWT_ISSUER"),
+		SecretKey: os.Getenv("SECRET_KEY"),
 		ServerPort: os.Getenv("SERVER_PORT"),
 		DatabaseURL: os.Getenv("DATABASE_URL"),
 		Environment: os.Getenv("ENVIRONMENT"),	// dev, prod environment
