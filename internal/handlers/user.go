@@ -54,8 +54,22 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 			return
 		}
 
-		responses.Success(w, http.StatusOK, "Welcome back!", map[string]string{"token": token})
+		// Attach Refresh Token as an HttpOnly, Secure Cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:     "refresh_token",
+			Value:    refreshToken,
+			Path:     "/auth/refreshToken", // Restrict cookie scope exclusively to the refresh endpoint
+			Expires:  time.Now().Add(7 * 24 * time.Hour),
+			HttpOnly: true,                  // JavaScript cannot read this cookie (XSS protection)
+			Secure:   true,                  // Requires HTTPS in production
+			SameSite: http.SameSiteLaxMode,  // Protection against CSRF attacks
+		})
 
+		loginResponse := responses.LoginResponse{
+			AccessToken: accessToken,
+			User: &user,
+		}
+		responses.Success(w, http.StatusOK, "Login successful! Welcome back.", loginResponse)
 	}
 }
 
