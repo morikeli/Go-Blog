@@ -33,8 +33,9 @@ func NewTokenMaker(secretKey string, issuer string) *TokenMaker {
 
 func (m *TokenMaker) GenerateToken(userId int64, username string) (string, error) {
 	claims := Claims{
-		UserId:   userId,
-		Username: username,
+		UserId:    userId,
+		Username:  username,
+		TokenType: tokenType,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			Issuer:    m.issuer,
