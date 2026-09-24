@@ -106,3 +106,33 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 		responses.Success(w, http.StatusCreated, "User account created successfully!", nil)
 	}
 }
+
+func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Read the cookie
+		cookie, err := r.Cookie("refresh_token")
+		if err != nil {
+			responses.Error(w, http.StatusUnauthorized, "Refresh token missing")
+			return
+		}
+
+		// Validate refresh token
+		claims, err := h.TokenMaker.VerifyToken(cookie.Value)
+		if err != nil {
+			responses.Error(w, http.StatusUnauthorized, "Invalid or expired refresh token!")
+			return
+		}
+
+		// Generate a fresh Access Token
+		newAccessToken, err := h.TokenMaker.GenerateAccessToken(claims.UserId, claims.Username, 15 * time.Minute)
+		if err != nil {
+			responses.Error(w, http.StatusInternalServerError, "Failed to issue new token")
+			return
+		}
+
+		// Return new access token
+		responses.Success(w, http.StatusOK, "Access token refreshed successfully!", map[string]string{
+			"access_token": newAccessToken,
+		})
+	}
+}
