@@ -48,10 +48,8 @@ func (m *TokenMaker) generateToken(userId int64, username string, tokenType Toke
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(m.secretKey)
-	if err != nil {
-		return "", err
-	}
+	return token.SignedString(m.secretKey)
+}
 
 	return tokenString, nil
 }
