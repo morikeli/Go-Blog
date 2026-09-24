@@ -51,5 +51,10 @@ func (m *TokenMaker) generateToken(userId int64, username string, tokenType Toke
 	return token.SignedString(m.secretKey)
 }
 
-	return tokenString, nil
+func (m *TokenMaker) GenerateAccessToken(userId int64, username string, duration time.Duration) (string, error) {
+	return m.generateToken(userId, username, AccessToken, duration)
+}
+
+func (m *TokenMaker) GenerateRefreshToken(userId int64, username string, duration time.Duration) (string, error) {
+	return m.generateToken(userId, username, RefreshToken, duration)
 }
