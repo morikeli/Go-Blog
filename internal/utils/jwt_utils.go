@@ -57,3 +57,28 @@ func (m *TokenMaker) GenerateAccessToken(userId int64, username string, duration
 func (m *TokenMaker) GenerateRefreshToken(userId int64, username string, duration time.Duration) (string, error) {
 	return m.generateToken(userId, username, RefreshToken, duration)
 }
+
+func (m *TokenMaker) VerifyToken(tokenString string) (*Claims, error) {
+	keyFunc := func(token *jwt.Token) (interface{}, error) {
+		// Ensure signing method matches expectations
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("Invalid signing method!")
+		}
+		return m.secretKey, nil
+	}
+
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, keyFunc)
+	if err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, errors.New("Invalid token: token has expired!")
+		}
+		return nil, errors.New("Invalid token: token may be malformed or tampered with!")
+	}
+
+	claims, ok := token.Claims.(*Claims)
+	if !ok || !token.Valid {
+		return nil, errors.New("Invalid token: token claims are invalid!")
+	}
+
+	return claims, nil
+}
