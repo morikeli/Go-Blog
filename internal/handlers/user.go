@@ -69,10 +69,10 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 			responses.Error(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		_, err = h.Queries.CreateUser(ctx, store.CreateUserParams{
 			Username: req.Username,
-			Email: req.Email,
+			Email:    req.Email,
 			Password: hashedPassword,
 		})
 
@@ -80,7 +80,7 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 			responses.Error(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		
+
 		responses.Success(w, http.StatusCreated, "User account created successfully!", nil)
 	}
 }
