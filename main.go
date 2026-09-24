@@ -12,7 +12,7 @@ import (
 
 func main() {
 	// load project config
-	config, err := config.LoadConfig()
+	cfg, err := config.LoadConfig()
 
 	if err != nil {
 		log.Fatalf("Failed to load project configuration file: %v", err)
@@ -28,14 +28,14 @@ func main() {
 	routes.SetupHealthRoute(mux, handler)
 
 	// server address
-	serverAddr := fmt.Sprintf(":%s", config.ServerPort)
+	serverAddr := fmt.Sprintf(":%s", cfg.ServerPort)
 	server := &http.Server{
 		Addr: serverAddr,
 		Handler: mux,
 	}
 
-	fmt.Printf("Server started on port %s\n", config.ServerPort)
-	
+	fmt.Printf("Server started on port %s\n", cfg.ServerPort)
+
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Server failed to start! Error: %v", err)
 	}
