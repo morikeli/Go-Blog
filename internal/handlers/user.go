@@ -30,7 +30,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 		user, err := h.Queries.GetUserByUsernameOrEmail(ctx, req.Username)
 
 		if err != nil {
-			responses.Error(w, http.StatusNotFound, "Invalid credentials provided!")
+			responses.Error(w, http.StatusUnauthorized, "Invalid credentials provided!")
 			return
 		}
 
