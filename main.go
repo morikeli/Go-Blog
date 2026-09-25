@@ -25,6 +25,10 @@ func main() {
 	database := db.ConnectDb(cfg.DatabaseURL)
 	defer database.Close()
 
+	// connect to redis
+	redisClient := db.ConnectRedis(cfg.RedisAddr, cfg.RedisPassword)
+	defer redisClient.Close()
+
 	queries := store.New(database)
 
 	// set up http server
@@ -32,7 +36,7 @@ func main() {
 
 	// create new handler & token maker
 	tokenMaker := utils.NewTokenMaker(cfg.SecretKey, cfg.JwtIssuer)
-	handler := handlers.NewHandler(database, queries, tokenMaker)
+	handler := handlers.NewHandler(database, queries, tokenMaker, redisClient)
 
 	// routers
 	routes.SetupHealthRoute(mux, handler)

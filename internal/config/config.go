@@ -14,6 +14,8 @@ type Config struct {
 	LogLevel    string
 	SecretKey   string
 	JwtIssuer   string
+	RedisAddr   string
+	RedisPassword string
 }
 
 func LoadConfig() (*Config, error) {
@@ -28,6 +30,8 @@ func LoadConfig() (*Config, error) {
 		DatabaseURL: os.Getenv("DATABASE_URL"),
 		Environment: os.Getenv("ENVIRONMENT"), // dev, prod environment
 		LogLevel:    os.Getenv("LOG_LEVEL"),   // debug, info, warn, error
+		RedisAddr:   os.Getenv("REDIS_ADDRESS"),
+		RedisPassword: os.Getenv("REDIS_PASSWORD"),
 	}
 
 	return config, nil
