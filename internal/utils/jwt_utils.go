@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"time"
+	"uuid"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -35,12 +36,14 @@ func NewTokenMaker(secretKey string, issuer string) *TokenMaker {
 
 func (m *TokenMaker) generateToken(userId int64, username string, tokenType TokenType, duration time.Duration) (string, error) {
 	now := time.Now()
+	tokenId := uuid.New().String()
 
 	claims := Claims{
 		UserId:    userId,
 		Username:  username,
 		TokenType: tokenType,
 		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        tokenId,
 			ExpiresAt: jwt.NewNumericDate(now.Add(duration)),
 			IssuedAt:  jwt.NewNumericDate(now),
 			NotBefore: jwt.NewNumericDate(now),
