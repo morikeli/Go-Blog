@@ -23,7 +23,7 @@ func AuthMiddleware(tokenMaker *utils.TokenMaker) func(http.Handler) http.Handle
 			// Extract Authorization header
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
-				responses.Error(w, http.StatusUnauthorized, "Authorization header is required")
+				responses.Error(w, http.StatusUnauthorized, "Authorization header is required!")
 				return
 			}
 

@@ -120,7 +120,7 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 		// Read the cookie
 		cookie, err := r.Cookie("refresh_token")
 		if err != nil {
-			responses.Error(w, http.StatusUnauthorized, "Refresh token missing")
+			responses.Error(w, http.StatusUnauthorized, "Refresh token missing!")
 			return
 		}
 
@@ -134,7 +134,7 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 		// Generate a fresh Access Token
 		newAccessToken, err := h.TokenMaker.GenerateAccessToken(claims.UserId, claims.Username, 15*time.Minute)
 		if err != nil {
-			responses.Error(w, http.StatusInternalServerError, "Failed to issue new token")
+			responses.Error(w, http.StatusInternalServerError, "Failed to issue new access token!")
 			return
 		}
 
