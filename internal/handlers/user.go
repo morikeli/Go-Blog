@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/morikeli/golangrestapi/internal/dtos/responses"
 	"github.com/morikeli/golangrestapi/internal/middlewares"
@@ -17,6 +20,16 @@ func (h *Handler) UserProfileHandler() http.HandlerFunc {
 			return
 		}
 
+		cachedKey := fmt.Sprintf("user:%d", userId)
+		if cached, err := h.Redis.Get(ctx, cachedKey).Result(); err == nil {
+			var cachedUser responses.UserResponse
+			if err := json.Unmarshal([]byte(cached), &cachedUser); err == nil {
+				responses.Success(w, http.StatusOK, "(From Cache) User profile fetched successfully!", cachedUser)
+				return
+			}
+		}
+
+		// Fetch user from database if not found in cache
 		user, err := h.Queries.GetUserById(ctx, userId)
 
 		if err != nil {
@@ -32,6 +45,10 @@ func (h *Handler) UserProfileHandler() http.HandlerFunc {
 			UpdatedAt: user.UpdatedAt,
 		}
 
+		// Cache the sanitized user response with 15-minute TTL
+		userJSON, _ := json.Marshal(fetchedUser)
+		h.Redis.Set(ctx, cachedKey, userJSON, 15*time.Minute)
+		
 		responses.Success(w, http.StatusOK, "User profile fetched successfully!", fetchedUser)
 	}
 }
