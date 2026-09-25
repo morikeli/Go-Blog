@@ -152,3 +152,42 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 		})
 	}
 }
+
+func (h *Handler) LogoutHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		cookie, err := r.Cookie("refresh_token")
+		if err == nil {
+			claims, err := h.TokenMaker.VerifyToken(cookie.Value)
+			
+			if err == nil && claims.ID != "" {
+				// Calculate remaining TTL until expiration
+				remainingDuration := time.Until(claims.ExpiresAt.Time)
+				
+				if remainingDuration > 0 {
+					// Store token ID in Redis with expiration matching token TTL
+					blacklistKey := "blacklist:" + claims.ID
+					_ = h.Redis.Set(ctx, blacklistKey, "revoked", remainingDuration).Err()
+				}
+			}
+		}
+
+		// Expire the cookie in user's browser
+		http.SetCookie(w, &http.Cookie{
+			Name:     "refresh_token",
+			Value:    "",	// Set the value to an empty string to wipe out the actual JWT payload.
+			Path:     "/auth/refreshToken",
+
+			// Sets the cookie's expiration date to January 1, 1970 UTC (Unix Epoch).
+    		// Because this timestamp is decades in the past, the browser immediately deletes the cookie.
+			Expires:  time.Unix(0, 0),
+			HttpOnly: true,	// JavaScript cannot read this cookie (XSS protection)
+			Secure:   true,
+			// Retains CSRF protection by controlling cross-site cookie transmission behavior.
+			SameSite: http.SameSiteLaxMode,	// Prevents the cookie from being sent in cross-site requests.
+		})
+
+		responses.Success(w, http.StatusOK, "Successfully logged out!", nil)
+	}
+}
