@@ -131,6 +131,14 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 			return
 		}
 
+		// Check Redis blacklist for token ID (claims.ID)
+		blacklistKey := "blacklist:" + claims.ID
+		exists, err := h.Redis.Exists(r.Context(), blacklistKey).Result()
+		if err == nil && exists > 0 {
+			responses.Error(w, http.StatusUnauthorized, "Refresh token has been revoked!")
+			return
+		}
+
 		// Generate a fresh Access Token
 		newAccessToken, err := h.TokenMaker.GenerateAccessToken(claims.UserId, claims.Username, 15*time.Minute)
 		if err != nil {
