@@ -55,7 +55,7 @@ func (h *Handler) UserProfileHandler() http.HandlerFunc {
 		// Cache the sanitized user response with 15-minute TTL
 		userJSON, _ := json.Marshal(fetchedUser)
 		h.Redis.Set(ctx, cachedKey, userJSON, 15*time.Minute)
-		
+
 		responses.Success(w, http.StatusOK, "User profile fetched successfully!", fetchedUser)
 	}
 }
