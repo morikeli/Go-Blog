@@ -3,7 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
@@ -16,6 +18,77 @@ import (
 	"github.com/morikeli/golangrestapi/internal/store"
 	"github.com/morikeli/golangrestapi/internal/utils"
 )
+
+func (h *Handler) ListUsersHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		// Parse limit with safe defaults (default: 10, max: 100)
+		limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
+		if err != nil || limit <= 0 {
+			limit = 10
+		} else if limit > 100 {
+			limit = 100
+		}
+
+		// Parse offset (default: 0)
+		offset, err := strconv.Atoi(r.URL.Query().Get("offset"))
+		if err != nil || offset < 0 {
+			offset = 0
+		}
+
+		// Fetch paginated users
+		users, err := h.Queries.ListUsers(ctx, store.ListUsersParams{
+			Limit:  int32(limit),
+			Offset: int32(offset),
+		})
+		if err != nil {
+			responses.Error(w, http.StatusInternalServerError, "Failed to list users: "+err.Error())
+			return
+		}
+
+		// Fetch total item count
+		totalItems, err := h.Queries.CountUsers(ctx)
+		if err != nil {
+			responses.Error(w, http.StatusInternalServerError, "Failed to count users: "+err.Error())
+			return
+		}
+
+		// Map DB structs to response DTOs
+		userResponses := make([]responses.UserResponse, 0, len(users))
+		for _, u := range users {
+			var photoURL string
+			if u.ProfilePhoto.Valid {
+				photoURL = u.ProfilePhoto.String
+			}
+
+			userResponses = append(userResponses, responses.UserResponse{
+				ID:             u.ID,
+				Username:       u.Username,
+				Email:          u.Email,
+				ProfilePicture: photoURL,
+				CreatedAt:      u.CreatedAt,
+				UpdatedAt:      u.UpdatedAt,
+			})
+		}
+
+		// Calculate current page & total pages safely
+		currentPage := (offset / limit) + 1
+		totalPages := int(math.Ceil(float64(totalItems) / float64(limit)))
+
+		paginatedResult := responses.PaginatedUserResponse{
+			Users: userResponses,
+			Pagination: responses.PaginationMeta{
+				Page:       currentPage,
+				Limit:      limit,
+				TotalItems: totalItems,
+				TotalPages: totalPages,
+			},
+		}
+
+		responses.Success(w, http.StatusOK, "Users retrieved successfully!", paginatedResult)
+	}
+}
 
 func (h *Handler) UserProfileHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -144,12 +217,12 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 
 		// 6. Return response DTO
 		userResponse := responses.UserResponse{
-			ID:        updateUser.ID,
-			Username:  updateUser.Username,
-			Email:     updateUser.Email,
+			ID:             updateUser.ID,
+			Username:       updateUser.Username,
+			Email:          updateUser.Email,
 			ProfilePicture: updateUser.ProfilePhoto.String,
-			CreatedAt: updateUser.CreatedAt,
-			UpdatedAt: updateUser.UpdatedAt,
+			CreatedAt:      updateUser.CreatedAt,
+			UpdatedAt:      updateUser.UpdatedAt,
 		}
 
 		responses.Success(w, http.StatusOK, "User profile updated successfully!", userResponse)
