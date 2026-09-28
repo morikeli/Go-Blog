@@ -16,6 +16,7 @@ type Config struct {
 	JwtIssuer   string
 	RedisAddr   string
 	RedisPassword string
+	CloudinaryURL string
 }
 
 func LoadConfig() (*Config, error) {
@@ -32,6 +33,7 @@ func LoadConfig() (*Config, error) {
 		LogLevel:    os.Getenv("LOG_LEVEL"),   // debug, info, warn, error
 		RedisAddr:   os.Getenv("REDIS_ADDRESS"),
 		RedisPassword: os.Getenv("REDIS_PASSWORD"),
+		CloudinaryURL: os.Getenv("CLOUDINARY_URL"),
 	}
 
 	return config, nil

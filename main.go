@@ -36,7 +36,7 @@ func main() {
 
 	// create new handler & token maker
 	tokenMaker := utils.NewTokenMaker(cfg.SecretKey, cfg.JwtIssuer)
-	handler := handlers.NewHandler(database, queries, tokenMaker, redisClient)
+	handler := handlers.NewHandler(database, queries, tokenMaker, redisClient, cfg)
 
 	// routers
 	routes.SetupHealthRoute(mux, handler)
