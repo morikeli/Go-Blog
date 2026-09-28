@@ -1,0 +1,17 @@
+FROM golang:1.27-alpine
+
+WORKDIR /app
+
+# Install Air for hot reloading
+RUN go install github.com/air-verse/air@latest
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+# Force polling mode for cross-platform volume watching
+ENV AIR_POLL_INTERVAL=1000
+
+# Run Air using .air.toml configuration
+CMD ["air", "-c", ".air.toml"]
