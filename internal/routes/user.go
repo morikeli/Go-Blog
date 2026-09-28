@@ -13,4 +13,5 @@ func SetupUserRoutes(mux *http.ServeMux, handler *handlers.Handler) {
 
 	// wrap user profile handler with auth middleware
 	mux.Handle("GET /user/profile", authMiddleware(http.HandlerFunc(handler.UserProfileHandler())))
+	mux.Handle("PUT /user/profile", authMiddleware(http.HandlerFunc(handler.UpdateUserProfileHandler())))
 }
