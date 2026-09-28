@@ -4,7 +4,7 @@ VALUES ($1, $2, $3, NOW(), NOW())
 RETURNING id, username, email, created_at, updated_at;
 
 -- name: GetUserById :one
-SELECT id, username, email, created_at, updated_at
+SELECT id, username, email, profile_photo, created_at, updated_at
 FROM users
 WHERE id = $1;
 
