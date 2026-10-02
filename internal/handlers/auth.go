@@ -143,8 +143,14 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 
 		// Check whether this refresh token has already been revoked
 		blacklistKey := "blacklist:" + claims.ID
-		exists, err := h.Redis.Exists(r.Context(), blacklistKey).Result()
-		if err == nil && exists > 0 {
+		exists, err := h.Redis.Exists(ctx, blacklistKey).Result()
+
+		if err != nil {
+			responses.Error(w, http.StatusServiceUnavailable, "Unable to validate refresh token!")
+			return
+		}
+
+		if exists > 0 {
 			responses.Error(w, http.StatusUnauthorized, "Refresh token has been revoked!")
 			return
 		}
