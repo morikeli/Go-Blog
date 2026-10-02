@@ -70,7 +70,7 @@ func (m *TokenMaker) VerifyToken(tokenString string) (*Claims, error) {
 		// Ensure signing method matches expectations
 
 		// Why it's there: This checks if the algorithm used to sign the token belongs to the HMAC family (symmetric key signing).
-		// Security Purpose: Prevents algorithm confusion attacks (e.g., an attacker changing the header to use an asymmetric method like RSA, 
+		// Security Purpose: Prevents algorithm confusion attacks (e.g., an attacker changing the header to use an asymmetric method like RSA,
 		// causing the parser to treat your public key as a secret HMAC key).
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("Invalid signing method!")
@@ -78,7 +78,7 @@ func (m *TokenMaker) VerifyToken(tokenString string) (*Claims, error) {
 
 		// Specifically require HS256.
 
-		// Why it's there: Even within the HMAC family (which includes HS256, HS384, HS512), this ensures the token was 
+		// Why it's there: Even within the HMAC family (which includes HS256, HS384, HS512), this ensures the token was
 		// specifically signed using HS256, matching the exact method used when tokens are created in
 		// [generateToken] (jwt.NewWithClaims(jwt.SigningMethodHS256, claims)).
 		if token.Method != jwt.SigningMethodHS256 {
