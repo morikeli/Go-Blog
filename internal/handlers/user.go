@@ -57,9 +57,9 @@ func (h *Handler) ListUsersHandler() http.HandlerFunc {
 		// Map DB structs to response DTOs
 		userResponses := make([]responses.UserResponse, 0, len(users))
 		for _, u := range users {
-			var photoURL string
-			if u.ProfilePhoto.Valid {
-				photoURL = u.ProfilePhoto.String
+			var photoURL *string
+			if u.ProfilePhoto.Valid && u.ProfilePhoto.String != "" {
+				photoURL = &u.ProfilePhoto.String	// return null if there's no profile photo
 			}
 
 			userResponses = append(userResponses, responses.UserResponse{
@@ -117,12 +117,18 @@ func (h *Handler) UserProfileHandler() http.HandlerFunc {
 			return
 		}
 
+		var profilePic *string
+		if user.ProfilePhoto.Valid && user.ProfilePhoto.String != "" {
+			profilePic = &user.ProfilePhoto.String
+		}
+
 		fetchedUser := responses.UserResponse{
-			ID:        user.ID,
-			Username:  user.Username,
-			Email:     user.Email,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
+			ID:             user.ID,
+			Username:       user.Username,
+			Email:          user.Email,
+			ProfilePicture: profilePic,
+			CreatedAt:      user.CreatedAt,
+			UpdatedAt:      user.UpdatedAt,
 		}
 
 		// Cache the sanitized user response with 15-minute TTL
@@ -220,7 +226,7 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 			ID:             updateUser.ID,
 			Username:       updateUser.Username,
 			Email:          updateUser.Email,
-			ProfilePicture: updateUser.ProfilePhoto.String,
+			ProfilePicture: &updateUser.ProfilePhoto.String,
 			CreatedAt:      updateUser.CreatedAt,
 			UpdatedAt:      updateUser.UpdatedAt,
 		}
