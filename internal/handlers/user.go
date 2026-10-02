@@ -221,12 +221,17 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 		cachedKey := fmt.Sprintf("user:%d", userId)
 		_ = h.Redis.Del(ctx, cachedKey).Err()
 
+		var profilePicture *string
+		if updateUser.ProfilePhoto.Valid && updateUser.ProfilePhoto.String != "" {
+			profilePicture = &updateUser.ProfilePhoto.String
+		}
+
 		// 6. Return response DTO
 		userResponse := responses.UserResponse{
 			ID:             updateUser.ID,
 			Username:       updateUser.Username,
 			Email:          updateUser.Email,
-			ProfilePicture: &updateUser.ProfilePhoto.String,
+			ProfilePicture: profilePicture,
 			CreatedAt:      updateUser.CreatedAt,
 			UpdatedAt:      updateUser.UpdatedAt,
 		}
