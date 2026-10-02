@@ -13,7 +13,7 @@ func ConnectRedis(addr, password string) *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: password,
-		DB:       0,	// default DB
+		DB:       0, // default DB
 	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

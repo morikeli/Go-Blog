@@ -35,7 +35,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 				responses.Error(w, http.StatusUnauthorized, "Invalid credentials provided!")
 				return
 			}
-			
+
 			responses.Error(
 				w,
 				http.StatusInternalServerError,

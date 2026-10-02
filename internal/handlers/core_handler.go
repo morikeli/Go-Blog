@@ -8,22 +8,22 @@ import (
 )
 
 type Handler struct {
-	TokenMaker *utils.TokenMaker
-	Redis      *redis.Client
-	Config     *config.Config
+	TokenMaker  *utils.TokenMaker
+	Redis       *redis.Client
+	Config      *config.Config
 	AuthService *services.AuthService
 }
 
 func NewHandler(
-	tokenMaker *utils.TokenMaker, 
-	redis *redis.Client, 
-	cfg *config.Config, 
+	tokenMaker *utils.TokenMaker,
+	redis *redis.Client,
+	cfg *config.Config,
 	authService *services.AuthService,
 ) *Handler {
 	return &Handler{
-		TokenMaker: tokenMaker,
-		Redis:      redis,
-		Config:     cfg,
+		TokenMaker:  tokenMaker,
+		Redis:       redis,
+		Config:      cfg,
 		AuthService: authService,
 	}
 }
