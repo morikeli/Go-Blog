@@ -136,7 +136,7 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 		}
 
 		// check if the token type is refresh
-		if claims.TokenType != utils.RefreshToken {
+		if claims.TokenType != utils.RefreshToken || claims.ID == "" {
 			responses.Error(w, http.StatusUnauthorized, "Invalid refresh token!")
 			return
 		}
