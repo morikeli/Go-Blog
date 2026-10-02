@@ -72,7 +72,7 @@ func (m *TokenMaker) VerifyToken(tokenString string) (*Claims, error) {
 		return m.secretKey, nil
 	}
 
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, keyFunc)
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, keyFunc, jwt.WithIssuer(m.issuer))
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			return nil, errors.New("Invalid token: token has expired!")
