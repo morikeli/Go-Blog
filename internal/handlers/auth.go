@@ -128,14 +128,14 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 		// Validate refresh token
 		claims, err := h.TokenMaker.VerifyToken(cookie.Value)
 
-		// check if the token type is refresh
-		if claims.TokenType != utils.RefreshToken {
-			responses.Error(w, http.StatusUnauthorized, "Invalid refresh token!")
+		if err != nil {
+			responses.Error(w, http.StatusUnauthorized, "Invalid or expired refresh token!")
 			return
 		}
 
-		if err != nil {
-			responses.Error(w, http.StatusUnauthorized, "Invalid or expired refresh token!")
+		// check if the token type is refresh
+		if claims.TokenType != utils.RefreshToken {
+			responses.Error(w, http.StatusUnauthorized, "Invalid refresh token!")
 			return
 		}
 
