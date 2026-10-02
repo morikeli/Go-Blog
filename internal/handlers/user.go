@@ -226,7 +226,7 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 			profilePicture = &updateUser.ProfilePhoto.String
 		}
 
-		// 6. Return response DTO
+		// Return response DTO
 		userResponse := responses.UserResponse{
 			ID:             updateUser.ID,
 			Username:       updateUser.Username,
