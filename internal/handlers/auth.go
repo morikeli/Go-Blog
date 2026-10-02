@@ -43,25 +43,6 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 			return
 		}
 
-		if !utils.ValidatePassword(user.Password, req.Password) {
-			responses.Error(w, http.StatusUnauthorized, "Invalid credentials provided!")
-			return
-		}
-
-		// Generate JWT token
-		accessToken, err := h.TokenMaker.GenerateAccessToken(int64(user.ID), user.Username, 15*time.Minute)
-
-		if err != nil {
-			responses.Error(w, http.StatusInternalServerError, "An error occurred while generating access token!")
-			return
-		}
-
-		refreshToken, err := h.TokenMaker.GenerateRefreshToken(int64(user.ID), user.Username, 7*24*time.Hour)
-
-		if err != nil {
-			responses.Error(w, http.StatusInternalServerError, "An error occurred while generating refresh token!")
-			return
-		}
 
 		// Attach Refresh Token as an HttpOnly, Secure Cookie
 		http.SetCookie(w, &http.Cookie{
