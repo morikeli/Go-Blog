@@ -145,6 +145,7 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 		blacklistKey := "blacklist:" + claims.ID
 		exists, err := h.Redis.Exists(ctx, blacklistKey).Result()
 
+		// If Redis fails, trigger an early exit with HTTP status 533 Service Unavailable
 		if err != nil {
 			responses.Error(w, http.StatusServiceUnavailable, "Unable to validate refresh token!")
 			return
