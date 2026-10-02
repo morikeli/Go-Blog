@@ -117,6 +117,8 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 
 func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
 		// Read the cookie
 		cookie, err := r.Cookie("refresh_token")
 
