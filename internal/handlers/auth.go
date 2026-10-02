@@ -177,15 +177,8 @@ func (h *Handler) LogoutHandler() http.HandlerFunc {
 		if err == nil {
 			claims, err := h.TokenMaker.VerifyToken(cookie.Value)
 
-			if err == nil && claims.ID != "" {
-				// Calculate remaining TTL until expiration
-				remainingDuration := time.Until(claims.ExpiresAt.Time)
-
-				if remainingDuration > 0 {
-					// Store token ID in Redis with expiration matching token TTL
-					blacklistKey := "blacklist:" + claims.ID
-					_ = h.Redis.Set(ctx, blacklistKey, "revoked", remainingDuration).Err()
-				}
+			if err == nil && claims.TokenType == utils.RefreshToken {
+				_ = utils.RevokeRefreshToken(ctx, h.Redis, claims)
 			}
 		}
 
