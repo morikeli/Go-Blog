@@ -193,7 +193,7 @@ func (h *Handler) LogoutHandler() http.HandlerFunc {
 		http.SetCookie(w, &http.Cookie{
 			Name:  "refresh_token",
 			Value: "", // Set the value to an empty string to wipe out the actual JWT payload.
-			Path:  "/auth/refreshToken",
+			Path:  "/auth/token/refresh",
 
 			// Sets the cookie's expiration date to January 1, 1970 UTC (Unix Epoch).
 			// Because this timestamp is decades in the past, the browser immediately deletes the cookie.
