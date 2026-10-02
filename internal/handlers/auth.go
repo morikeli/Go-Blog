@@ -155,12 +155,39 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 			return
 		}
 
+		// Revoke the current refresh token BEFORE issuing a new one. This makes the refresh token single-use.
+		if err := utils.RevokeRefreshToken(ctx, h.Redis, claims); err != nil {
+			responses.Error(w, http.StatusServiceUnavailable, "Unable to rotate refresh token!")
+			return
+		}
+
 		// Generate a fresh Access Token
 		newAccessToken, err := h.TokenMaker.GenerateAccessToken(claims.UserId, claims.Username, 15*time.Minute)
 		if err != nil {
 			responses.Error(w, http.StatusInternalServerError, "Failed to issue new access token!")
 			return
 		}
+
+		// Generate a new refresh token.
+		newRefreshToken, err := h.TokenMaker.GenerateRefreshToken(claims.UserId, claims.Username, 7*24*time.Hour)
+		if err != nil {
+			responses.Error(w, http.StatusInternalServerError, "Failed to issue new refresh token!")
+			return
+		}
+
+		// Replace the old refresh-token cookie.
+		http.SetCookie(w, &http.Cookie{
+			Name:     "refresh_token",
+			Value:    newRefreshToken,
+			Path:     "/auth/token/refresh",
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteLaxMode,
+
+			// Optional but recommended:
+			// Seconds: >0 (persistent), <0 (delete immediately), 0 (session/unspecified)
+			MaxAge: 7 * 24 * 60 * 60, // 7 days in seconds
+		})
 
 		// Return new access token
 		responses.Success(w, http.StatusOK, "Access token refreshed successfully!", map[string]string{
