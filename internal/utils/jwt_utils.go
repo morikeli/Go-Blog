@@ -66,6 +66,10 @@ func (m *TokenMaker) GenerateRefreshToken(userId int64, username string, duratio
 func (m *TokenMaker) VerifyToken(tokenString string) (*Claims, error) {
 	keyFunc := func(token *jwt.Token) (interface{}, error) {
 		// Ensure signing method matches expectations
+
+		// Why it's there: This checks if the algorithm used to sign the token belongs to the HMAC family (symmetric key signing).
+		// Security Purpose: Prevents algorithm confusion attacks (e.g., an attacker changing the header to use an asymmetric method like RSA, 
+		// causing the parser to treat your public key as a secret HMAC key).
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("Invalid signing method!")
 		}
