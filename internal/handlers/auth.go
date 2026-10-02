@@ -7,7 +7,7 @@ import (
 
 	"github.com/morikeli/golangrestapi/internal/dtos/requests"
 	"github.com/morikeli/golangrestapi/internal/dtos/responses"
-	"github.com/morikeli/golangrestapi/internal/store"
+	"github.com/morikeli/golangrestapi/internal/services"
 	"github.com/morikeli/golangrestapi/internal/utils"
 )
 
