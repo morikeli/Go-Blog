@@ -69,6 +69,16 @@ func (m *TokenMaker) VerifyToken(tokenString string) (*Claims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("Invalid signing method!")
 		}
+
+		// Specifically require HS256.
+
+		// Why it's there: Even within the HMAC family (which includes HS256, HS384, HS512), this ensures the token was 
+		// specifically signed using HS256, matching the exact method used when tokens are created in
+		// [generateToken] (jwt.NewWithClaims(jwt.SigningMethodHS256, claims)).
+		if token.Method != jwt.SigningMethodHS256 {
+			return nil, errors.New("Unexpected signing algorithm!")
+		}
+
 		return m.secretKey, nil
 	}
 
