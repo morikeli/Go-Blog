@@ -30,7 +30,16 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 		result, err := h.AuthService.Login(ctx, req.Username, req.Password)
 
 		if err != nil {
-			responses.Error(w, http.StatusUnauthorized, "Invalid credentials provided!")
+			if errors.Is(err, services.ErrInvalidCredentials) {
+				responses.Error(w, http.StatusUnauthorized, "Invalid credentials provided!")
+				return
+			}
+			
+			responses.Error(
+				w,
+				http.StatusInternalServerError,
+				"Oh snap! We could not authenticate you at the moment. Please try again later.",
+			)
 			return
 		}
 
@@ -95,18 +104,10 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 		err := h.AuthService.Signup(ctx, req.Username, req.Email, req.Password)
 
 		if err != nil {
-			responses.Error(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		_, err = h.Queries.CreateUser(ctx, store.CreateUserParams{
-			Username: req.Username,
-			Email:    req.Email,
-			Password: hashedPassword,
-		})
-
-		if err != nil {
-			responses.Error(w, http.StatusInternalServerError, err.Error())
+			responses.Error(
+				w, http.StatusInternalServerError,
+				"Oh no! We could not create your account. Please try again later.",
+			)
 			return
 		}
 
