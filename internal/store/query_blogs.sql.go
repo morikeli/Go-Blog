@@ -16,9 +16,9 @@ RETURNING id, title, content, user_id, created_at, updated_at
 `
 
 type CreateBlogParams struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
-	UserID  int32  `json:"user_id"`
+	Title   string
+	Content string
+	UserID  int32
 }
 
 func (q *Queries) CreateBlog(ctx context.Context, arg CreateBlogParams) (Blog, error) {

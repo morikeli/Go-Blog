@@ -29,17 +29,17 @@ RETURNING id, username, email, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Username string
+	Email    string
+	Password string
 }
 
 type CreateUserRow struct {
-	ID        int64              `json:"id"`
-	Username  string             `json:"username"`
-	Email     string             `json:"email"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	ID        int64
+	Username  string
+	Email     string
+	CreatedAt pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
@@ -62,12 +62,12 @@ WHERE id = $1
 `
 
 type GetUserByIdRow struct {
-	ID           int64              `json:"id"`
-	Username     string             `json:"username"`
-	Email        string             `json:"email"`
-	ProfilePhoto pgtype.Text        `json:"profile_photo"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+	ID           int64
+	Username     string
+	Email        string
+	ProfilePhoto pgtype.Text
+	CreatedAt    pgtype.Timestamptz
+	UpdatedAt    pgtype.Timestamptz
 }
 
 func (q *Queries) GetUserById(ctx context.Context, id int64) (GetUserByIdRow, error) {
@@ -91,12 +91,12 @@ WHERE username = $1 OR email = $1
 `
 
 type GetUserByUsernameOrEmailRow struct {
-	ID        int64              `json:"id"`
-	Username  string             `json:"username"`
-	Email     string             `json:"email"`
-	Password  string             `json:"password"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	ID        int64
+	Username  string
+	Email     string
+	Password  string
+	CreatedAt pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
 }
 
 func (q *Queries) GetUserByUsernameOrEmail(ctx context.Context, username string) (GetUserByUsernameOrEmailRow, error) {
@@ -121,17 +121,17 @@ LIMIT $1 OFFSET $2
 `
 
 type ListUsersParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Limit  int32
+	Offset int32
 }
 
 type ListUsersRow struct {
-	ID           int64              `json:"id"`
-	Username     string             `json:"username"`
-	Email        string             `json:"email"`
-	ProfilePhoto pgtype.Text        `json:"profile_photo"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+	ID           int64
+	Username     string
+	Email        string
+	ProfilePhoto pgtype.Text
+	CreatedAt    pgtype.Timestamptz
+	UpdatedAt    pgtype.Timestamptz
 }
 
 func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUsersRow, error) {
@@ -172,18 +172,18 @@ RETURNING id, username, email, profile_photo, created_at, updated_at
 `
 
 type UpdateUserProfileParams struct {
-	ID           int64       `json:"id"`
-	Username     pgtype.Text `json:"username"`
-	ProfilePhoto pgtype.Text `json:"profile_photo"`
+	ID           int64
+	Username     pgtype.Text
+	ProfilePhoto pgtype.Text
 }
 
 type UpdateUserProfileRow struct {
-	ID           int64              `json:"id"`
-	Username     string             `json:"username"`
-	Email        string             `json:"email"`
-	ProfilePhoto pgtype.Text        `json:"profile_photo"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+	ID           int64
+	Username     string
+	Email        string
+	ProfilePhoto pgtype.Text
+	CreatedAt    pgtype.Timestamptz
+	UpdatedAt    pgtype.Timestamptz
 }
 
 func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (UpdateUserProfileRow, error) {

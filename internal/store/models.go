@@ -9,20 +9,20 @@ import (
 )
 
 type Blog struct {
-	ID        int64              `json:"id"`
-	Title     string             `json:"title"`
-	Content   string             `json:"content"`
-	UserID    int32              `json:"user_id"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	ID        int64
+	Title     string
+	Content   string
+	UserID    int32
+	CreatedAt pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
 }
 
 type User struct {
-	ID           int64              `json:"id"`
-	Username     string             `json:"username"`
-	Email        string             `json:"email"`
-	Password     string             `json:"password"`
-	ProfilePhoto pgtype.Text        `json:"profile_photo"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+	ID           int64
+	Username     string
+	Email        string
+	Password     string
+	ProfilePhoto pgtype.Text
+	CreatedAt    pgtype.Timestamptz
+	UpdatedAt    pgtype.Timestamptz
 }
