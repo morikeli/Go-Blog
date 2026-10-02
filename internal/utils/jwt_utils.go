@@ -1,11 +1,13 @@
 package utils
 
 import (
+	"context"
 	"errors"
 	"time"
 	"uuid"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/redis/go-redis/v9"
 )
 
 type TokenType string
@@ -131,4 +133,24 @@ func (m *TokenMaker) VerifyRefreshToken(tokenString string) (*Claims, error) {
 	}
 
 	return claims, nil
+}
+
+func RevokeRefreshToken(ctx context.Context, rdb *redis.Client, claims *Claims) error {
+	if claims == nil || claims.ID == "" {
+		return nil
+	}
+
+	if claims.ExpiresAt == nil {
+		return nil
+	}
+
+	remainingDuration := time.Until(claims.ExpiresAt.Time)
+
+	if remainingDuration <= 0 {
+		return nil
+	}
+
+	blacklistKey := "blacklist:" + claims.ID
+
+	return rdb.Set(ctx, blacklistKey, "revoked", remainingDuration).Err()
 }
