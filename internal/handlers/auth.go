@@ -47,7 +47,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 		// Attach Refresh Token as an HttpOnly, Secure Cookie
 		http.SetCookie(w, &http.Cookie{
 			Name:     "refresh_token",
-			Value:    refreshToken,
+			Value:    result.RefreshToken,
 			Path:     "/auth/token/refresh", // Restrict cookie scope exclusively to the refresh endpoint
 			Expires:  time.Now().Add(7 * 24 * time.Hour),
 			HttpOnly: true,                 // JavaScript cannot read this cookie (XSS protection)
@@ -56,15 +56,15 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 		})
 
 		userResponse := responses.UserResponse{
-			ID:        user.ID,
-			Username:  user.Username,
-			Email:     user.Email,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
+			ID:        result.User.ID,
+			Username:  result.User.Username,
+			Email:     result.User.Email,
+			CreatedAt: result.User.CreatedAt,
+			UpdatedAt: result.User.UpdatedAt,
 		}
 
 		loginResponse := responses.LoginResponse{
-			AccessToken: accessToken,
+			AccessToken: result.AccessToken,
 			User:        userResponse,
 		}
 		responses.Success(w, http.StatusOK, "Login successful! Welcome back.", loginResponse)
