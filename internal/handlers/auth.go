@@ -141,7 +141,7 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 			return
 		}
 
-		// Check Redis blacklist for token ID (claims.ID)
+		// Check whether this refresh token has already been revoked
 		blacklistKey := "blacklist:" + claims.ID
 		exists, err := h.Redis.Exists(r.Context(), blacklistKey).Result()
 		if err == nil && exists > 0 {
