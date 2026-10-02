@@ -91,6 +91,11 @@ func (m *TokenMaker) VerifyToken(tokenString string) (*Claims, error) {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			return nil, errors.New("Invalid token: token has expired!")
 		}
+
+		if errors.Is(err, jwt.ErrTokenInvalidIssuer) {
+			return nil, errors.New("Invalid token: invalid issuer!")
+		}
+
 		return nil, errors.New("Invalid token: token may be malformed or tampered with!")
 	}
 
