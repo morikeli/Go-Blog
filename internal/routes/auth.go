@@ -9,6 +9,6 @@ import (
 func SetupAuthRoutes(mux *http.ServeMux, handler *handlers.Handler) {
 	mux.HandleFunc("POST /auth/signup", handler.SignupHandler())
 	mux.HandleFunc("POST /auth/login", handler.LoginHandler())
-	mux.HandleFunc("POST /auth/refreshToken", handler.RefreshTokenHandler())
+	mux.HandleFunc("POST /auth/token/refresh", handler.RefreshTokenHandler())
 	mux.HandleFunc("POST /auth/logout", handler.LogoutHandler())
 }
