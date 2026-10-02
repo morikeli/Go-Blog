@@ -8,7 +8,9 @@ import (
 	"github.com/morikeli/golangrestapi/internal/config"
 	"github.com/morikeli/golangrestapi/internal/db"
 	"github.com/morikeli/golangrestapi/internal/handlers"
+	"github.com/morikeli/golangrestapi/internal/repositories"
 	"github.com/morikeli/golangrestapi/internal/routes"
+	"github.com/morikeli/golangrestapi/internal/services"
 	"github.com/morikeli/golangrestapi/internal/store"
 	"github.com/morikeli/golangrestapi/internal/utils"
 )
@@ -31,12 +33,19 @@ func main() {
 
 	queries := store.New(database)
 
-	// set up http server
-	mux := http.NewServeMux()
-
 	// create new handler & token maker
 	tokenMaker := utils.NewTokenMaker(cfg.SecretKey, cfg.JwtIssuer)
-	handler := handlers.NewHandler(database, queries, tokenMaker, redisClient, cfg)
+
+	// repository layer
+	userRepo := repositories.UserRepository(queries)
+
+	// service layer
+	authService := services.NewAuthService(userRepo, tokenMaker)
+
+	handler := handlers.NewHandler(tokenMaker, redisClient, cfg, authService)
+
+	// set up http server
+	mux := http.NewServeMux()
 
 	// routers
 	routes.SetupHealthRoute(mux, handler)
