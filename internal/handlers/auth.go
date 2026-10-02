@@ -27,8 +27,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 			return
 		}
 
-		// fetch user
-		user, err := h.Queries.GetUserByUsernameOrEmail(ctx, req.Username)
+		result, err := h.AuthService.Login(ctx, req.Username, req.Password)
 
 		if err != nil {
 			responses.Error(w, http.StatusUnauthorized, "Invalid credentials provided!")
@@ -93,7 +92,7 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 			return
 		}
 
-		hashedPassword, err := utils.HashPassword(req.Password)
+		err := h.AuthService.Signup(ctx, req.Username, req.Email, req.Password)
 
 		if err != nil {
 			responses.Error(w, http.StatusInternalServerError, err.Error())
