@@ -59,7 +59,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 		http.SetCookie(w, &http.Cookie{
 			Name:     "refresh_token",
 			Value:    refreshToken,
-			Path:     "/auth/refreshToken", // Restrict cookie scope exclusively to the refresh endpoint
+			Path:     "/auth/token/refresh", // Restrict cookie scope exclusively to the refresh endpoint
 			Expires:  time.Now().Add(7 * 24 * time.Hour),
 			HttpOnly: true,                 // JavaScript cannot read this cookie (XSS protection)
 			Secure:   true,                 // Requires HTTPS in production
