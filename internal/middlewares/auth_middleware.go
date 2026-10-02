@@ -34,7 +34,7 @@ func AuthMiddleware(tokenMaker *utils.TokenMaker) func(http.Handler) http.Handle
 				return
 			}
 
-			claims, err := tokenMaker.VerifyToken(tokenStr)
+			claims, err := tokenMaker.VerifyAccessToken(tokenStr)
 			if err != nil {
 				responses.Error(w, http.StatusUnauthorized, "Invalid or expired token!")
 				return

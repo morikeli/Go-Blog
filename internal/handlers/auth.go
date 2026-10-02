@@ -128,7 +128,7 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 		}
 
 		// Validate refresh token
-		claims, err := h.TokenMaker.VerifyToken(cookie.Value)
+		claims, err := h.TokenMaker.VerifyRefreshToken(cookie.Value)
 
 		if err != nil {
 			responses.Error(w, http.StatusUnauthorized, "Invalid or expired refresh token!")

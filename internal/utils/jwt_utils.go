@@ -106,3 +106,29 @@ func (m *TokenMaker) VerifyToken(tokenString string) (*Claims, error) {
 
 	return claims, nil
 }
+
+func (m *TokenMaker) VerifyAccessToken(tokenString string) (*Claims, error) {
+	claims, err := m.VerifyToken(tokenString)
+	if err != nil {
+		return nil, err
+	}
+
+	if claims.TokenType != AccessToken {
+		return nil, errors.New("Invalid access token!")
+	}
+
+	return claims, nil
+}
+
+func (m *TokenMaker) VerifyRefreshToken(tokenString string) (*Claims, error) {
+	claims, err := m.VerifyToken(tokenString)
+	if err != nil {
+		return nil, err
+	}
+
+	if claims.TokenType != RefreshToken {
+		return nil, errors.New("Invalid refresh token!")
+	}
+
+	return claims, nil
+}
