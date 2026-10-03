@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -160,7 +161,7 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 			return
 		}
 
-		file, _, fileErr := r.FormFile("profile_picture")
+		file, fileHeader, fileErr := r.FormFile("profile_picture")
 
 		// Ensure at least one field is provided to update user profile
 		if req.Username == "" && fileErr != nil {
@@ -173,6 +174,22 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 		// Handle profile picture update if a file was attached
 		if fileErr == nil {
 			defer file.Close()
+
+			// Validate profile image during upload
+			_, err := utils.ValidateProfileImage(file, fileHeader.Size)
+			if err != nil {
+				switch {
+				case errors.Is(err, utils.ErrImageTooLarge):
+					responses.Error(w, http.StatusRequestEntityTooLarge, "Profile photo is too large! Max. size is 5 MB.")
+
+				case errors.Is(err, utils.ErrUnsupportedImage):
+					responses.Error(w, http.StatusUnsupportedMediaType, "Unsupported image format: only .jpeg, .png, .webp allowed!")
+
+				default:
+					responses.Error(w, http.StatusInternalServerError, "Invalid profile photo uploaded!")
+				}
+				return
+			}
 
 			cld, err := cloudinary.NewFromURL(h.Config.CloudinaryURL)
 			if err != nil {
