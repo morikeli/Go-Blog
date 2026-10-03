@@ -11,11 +11,9 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/morikeli/golangrestapi/internal/dtos/requests"
 	"github.com/morikeli/golangrestapi/internal/dtos/responses"
 	"github.com/morikeli/golangrestapi/internal/middlewares"
-	"github.com/morikeli/golangrestapi/internal/store"
 	"github.com/morikeli/golangrestapi/internal/utils"
 )
 
@@ -38,19 +36,9 @@ func (h *Handler) ListUsersHandler() http.HandlerFunc {
 		}
 
 		// Fetch paginated users
-		users, err := h.Queries.ListUsers(ctx, store.ListUsersParams{
-			Limit:  int32(limit),
-			Offset: int32(offset),
-		})
+		users, totalItems, err := h.UserService.ListUsers(ctx, limit, offset)
 		if err != nil {
-			responses.Error(w, http.StatusInternalServerError, "Failed to list users: "+err.Error())
-			return
-		}
-
-		// Fetch total item count
-		totalItems, err := h.Queries.CountUsers(ctx)
-		if err != nil {
-			responses.Error(w, http.StatusInternalServerError, "Failed to count users: "+err.Error())
+			responses.Error(w, http.StatusInternalServerError, "Failed to retrieve users!")
 			return
 		}
 
@@ -110,7 +98,7 @@ func (h *Handler) UserProfileHandler() http.HandlerFunc {
 		}
 
 		// Fetch user from database if not found in cache
-		user, err := h.Queries.GetUserById(ctx, userId)
+		user, err := h.UserService.GetUser(ctx, userId)
 
 		if err != nil {
 			responses.Error(w, http.StatusNotFound, "User profile not found!")
@@ -173,15 +161,7 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 			return
 		}
 
-		// Prepare sqlc params structure
-		params := store.UpdateUserProfileParams{
-			ID: userId,
-		}
-
-		// Handle profile picture update if a file was attached
-		if req.Username != "" {
-			params.Username = pgtype.Text{String: req.Username, Valid: true}
-		}
+		var profilePhoto *string
 
 		// Handle profile picture update if a file was attached
 		if fileErr == nil {
@@ -207,11 +187,11 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 				return
 			}
 
-			params.ProfilePhoto = pgtype.Text{String: uploadResult.SecureURL, Valid: true}
+			profilePhoto = &uploadResult.SecureURL
 		}
 
 		// update user profile
-		updateUser, err := h.Queries.UpdateUserProfile(ctx, params)
+		updateUser, err := h.UserService.UpdateProfile(ctx, userId, req.Username, profilePhoto)
 		if err != nil {
 			responses.Error(w, http.StatusInternalServerError, "Failed to update user profile!")
 			return
