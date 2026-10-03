@@ -12,6 +12,7 @@ type Handler struct {
 	Redis       *redis.Client
 	Config      *config.Config
 	AuthService *services.AuthService
+	UserService *services.UserService
 }
 
 func NewHandler(
@@ -19,11 +20,13 @@ func NewHandler(
 	redis *redis.Client,
 	cfg *config.Config,
 	authService *services.AuthService,
+	userService *services.UserService,
 ) *Handler {
 	return &Handler{
 		TokenMaker:  tokenMaker,
 		Redis:       redis,
 		Config:      cfg,
 		AuthService: authService,
+		UserService: userService,
 	}
 }

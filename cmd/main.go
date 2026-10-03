@@ -41,8 +41,14 @@ func main() {
 
 	// service layer
 	authService := services.NewAuthService(userRepo, tokenMaker)
+	userService := services.NewUserService(userRepo)
 
-	handler := handlers.NewHandler(tokenMaker, redisClient, cfg, authService)
+	handler := handlers.NewHandler(tokenMaker,
+		redisClient,
+		cfg,
+		authService,
+		userService,
+	)
 
 	// set up http server
 	mux := http.NewServeMux()
