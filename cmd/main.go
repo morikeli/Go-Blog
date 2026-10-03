@@ -75,11 +75,11 @@ func main() {
 	// server address
 	serverAddr := fmt.Sprintf(":%s", cfg.ServerPort)
 	server := &http.Server{
-		Addr:    serverAddr,
-		Handler: mux,
-		ReadTimeout:  10 * time.Second,	// Timeout for reading request headers & body
-		WriteTimeout: 10 * time.Second,	// Timeout for writing response
-		IdleTimeout:  time.Minute,	// Timeout for keep-alive connections
+		Addr:         serverAddr,
+		Handler:      mux,
+		ReadTimeout:  10 * time.Second, // Timeout for reading request headers & body
+		WriteTimeout: 10 * time.Second, // Timeout for writing response
+		IdleTimeout:  time.Minute,      // Timeout for keep-alive connections
 	}
 
 	// Channel to signal server startup errors
