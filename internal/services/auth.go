@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/morikeli/golangrestapi/internal/repositories"
 	"github.com/morikeli/golangrestapi/internal/store"
 	"github.com/morikeli/golangrestapi/internal/utils"
@@ -13,6 +14,8 @@ import (
 
 var (
 	ErrInvalidCredentials = errors.New("Invalid credentials!")
+	ErrDuplicateEmail     = errors.New("Email is already registered!")
+	ErrDuplicateUsername  = errors.New("Username is already taken!")
 )
 
 // AuthService contains authentication-related business logic.
@@ -84,5 +87,19 @@ func (s *AuthService) Signup(ctx context.Context, username string, email string,
 		Password: hashedPassword,
 	})
 
-	return err
+	if err != nil {
+		// Check if error is a Postgres unique constraint violation
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" { // 23505 = unique_violation
+			if strings.Contains(pgErr.ConstraintName, "email_key") {
+				return ErrDuplicateEmail
+			}
+			if strings.Contains(pgErr.ConstraintName, "username_key") {
+				return ErrDuplicateUsername
+			}
+		}
+		return err
+	}
+
+	return nil
 }
