@@ -30,7 +30,7 @@ type App struct {
 	redisClient *redis.Client
 }
 
-func (a *App) Run(cfg *config.Config) (*App, error) {
+func NewApp(cfg *config.Config) (*App, error) {
 	// connect to db
 	database := db.ConnectDb(cfg.DatabaseURL)
 
