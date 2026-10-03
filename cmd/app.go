@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -113,4 +114,30 @@ func (a *App) Start(port string) error {
 		log.Printf("Received signal '%v'. Initiating graceful shutdown...", sig)
 		return a.shutdown()
 	}
+}
+
+func (a *App) shutdown() error {
+	// Create a timeout context for the shutdown process (e.g., 10 seconds)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Drain HTTP server requests first; stop accepting new connections
+	if err := a.server.Shutdown(ctx); err != nil {
+		_ = a.server.Close()
+		log.Printf("HTTP server shutdown forced: %v", err)
+	}
+
+	// Close database and Redis connections AFTER HTTP server has drained requests
+	a.database.Close()
+	log.Println("Database connection closed successfully.")
+
+	if err := a.redisClient.Close(); err != nil {
+		log.Printf("Error closing Redis client: %v", err)
+	} else {
+		log.Println("Redis client connection closed successfully!")
+	}
+
+	log.Println("Graceful shutdown complete.")
+
+	return nil
 }
