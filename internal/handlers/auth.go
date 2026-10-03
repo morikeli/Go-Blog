@@ -91,6 +91,11 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 		err := h.AuthService.Signup(ctx, req.Username, req.Email, req.Password)
 
 		if err != nil {
+			if errors.Is(err, services.ErrDuplicateEmail) || errors.Is(err, services.ErrDuplicateUsername) {
+				responses.Error(w, http.StatusConflict, "Username or email already taken!")
+				return
+			}
+
 			responses.Error(
 				w, http.StatusInternalServerError,
 				"Oh no! We could not create your account. Please try again later.",
