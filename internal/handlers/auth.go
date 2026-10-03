@@ -79,6 +79,11 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 
 		var req requests.SignupRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			responses.Error(w, http.StatusBadRequest, "Invalid request body!")
+			return
+		}
+
+		if err := utils.ValidateRequest(req); err != nil {
 			responses.Error(w, http.StatusBadRequest, err.Error())
 			return
 		}
