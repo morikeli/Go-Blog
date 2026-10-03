@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/morikeli/golangrestapi/internal/dtos/requests"
@@ -191,13 +190,6 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 				return
 			}
 
-			cld, err := cloudinary.NewFromURL(h.Config.CloudinaryURL)
-			if err != nil {
-				log.Printf("failed to initialize cloud storage client: %v", err)
-				responses.Error(w, http.StatusInternalServerError, "Failed to initialize cloud storage client!")
-				return
-			}
-
 			uploadParams := uploader.UploadParams{
 				Folder:         "profile_pictures",
 				PublicID:       fmt.Sprintf("user_%d", userId),
@@ -206,7 +198,7 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 				Transformation: "c_fill,g_face,w_400,h_400,r_max", // Square 400x400 auto-cropped to human face
 			}
 
-			uploadResult, err := cld.Upload.Upload(ctx, file, uploadParams)
+			uploadResult, err := h.Cloudinary.Upload.Upload(ctx, file, uploadParams)
 			if err != nil {
 				log.Printf("failed to upload image to cloud storage: %v", err)
 				responses.Error(w, http.StatusInternalServerError, "Failed to upload image to cloud storage!")
