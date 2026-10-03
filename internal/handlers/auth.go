@@ -18,7 +18,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 
 		var req requests.LoginRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			responses.Error(w, http.StatusBadRequest, err.Error())
+			responses.Error(w, http.StatusBadRequest, "Invalid request body!")
 			return
 		}
 
