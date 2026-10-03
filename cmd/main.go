@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/morikeli/golangrestapi/internal/config"
@@ -71,6 +72,9 @@ func main() {
 	server := &http.Server{
 		Addr:    serverAddr,
 		Handler: mux,
+		ReadTimeout:  10 * time.Second,	// Timeout for reading request headers & body
+		WriteTimeout: 10 * time.Second,	// Timeout for writing response
+		IdleTimeout:  time.Minute,	// Timeout for keep-alive connections
 	}
 
 	fmt.Printf("Server started on port %s\n", cfg.ServerPort)
