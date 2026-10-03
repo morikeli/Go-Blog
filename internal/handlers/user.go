@@ -59,7 +59,7 @@ func (h *Handler) ListUsersHandler() http.HandlerFunc {
 		for _, u := range users {
 			var photoURL *string
 			if u.ProfilePhoto.Valid && u.ProfilePhoto.String != "" {
-				photoURL = &u.ProfilePhoto.String	// return null if there's no profile photo
+				photoURL = &u.ProfilePhoto.String // return null if there's no profile photo
 			}
 
 			userResponses = append(userResponses, responses.UserResponse{

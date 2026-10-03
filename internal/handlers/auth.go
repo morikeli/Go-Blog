@@ -44,7 +44,6 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 			return
 		}
 
-
 		// Attach Refresh Token as an HttpOnly, Secure Cookie
 		http.SetCookie(w, &http.Cookie{
 			Name:     "refresh_token",
