@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 	"net/http"
 	"strconv"
@@ -38,6 +39,7 @@ func (h *Handler) ListUsersHandler() http.HandlerFunc {
 		// Fetch paginated users
 		users, totalItems, err := h.UserService.ListUsers(ctx, limit, offset)
 		if err != nil {
+			log.Printf("failed to retrieve users: %v", err)
 			responses.Error(w, http.StatusInternalServerError, "Failed to retrieve users!")
 			return
 		}
@@ -169,6 +171,7 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 
 			cld, err := cloudinary.NewFromURL(h.Config.CloudinaryURL)
 			if err != nil {
+				log.Printf("failed to initialize cloud storage client: %v", err)
 				responses.Error(w, http.StatusInternalServerError, "Failed to initialize cloud storage client!")
 				return
 			}
@@ -183,6 +186,7 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 
 			uploadResult, err := cld.Upload.Upload(ctx, file, uploadParams)
 			if err != nil {
+				log.Printf("failed to upload image to cloud storage: %v", err)
 				responses.Error(w, http.StatusInternalServerError, "Failed to upload image to cloud storage!")
 				return
 			}
@@ -193,6 +197,7 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 		// update user profile
 		updateUser, err := h.UserService.UpdateProfile(ctx, userId, req.Username, profilePhoto)
 		if err != nil {
+			log.Printf("failed to update user profile: %v", err)
 			responses.Error(w, http.StatusInternalServerError, "Failed to update user profile!")
 			return
 		}

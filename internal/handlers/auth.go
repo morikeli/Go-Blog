@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"time"
 
@@ -18,6 +19,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 
 		var req requests.LoginRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			log.Printf("failed to decode request body: %v", err)
 			responses.Error(w, http.StatusBadRequest, "Invalid request body!")
 			return
 		}
@@ -35,7 +37,8 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 				responses.Error(w, http.StatusUnauthorized, "Invalid credentials provided!")
 				return
 			}
-
+			
+			log.Printf("failed to authenticate user: %v", err)
 			responses.Error(
 				w,
 				http.StatusInternalServerError,
@@ -78,6 +81,7 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 
 		var req requests.SignupRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			log.Printf("failed to decode request body: %v", err)
 			responses.Error(w, http.StatusBadRequest, "Invalid request body!")
 			return
 		}
@@ -95,6 +99,7 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 				return
 			}
 
+			log.Printf("failed to signup user: %v", err)
 			responses.Error(
 				w, http.StatusInternalServerError,
 				"Oh no! We could not create your account. Please try again later.",
@@ -138,6 +143,7 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 
 		// If Redis fails, trigger an early exit with HTTP status 533 Service Unavailable
 		if err != nil {
+			log.Printf("failed to check blacklist: %v", err)
 			responses.Error(w, http.StatusServiceUnavailable, "Unable to validate refresh token!")
 			return
 		}
@@ -149,6 +155,7 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 
 		// Revoke the current refresh token BEFORE issuing a new one. This makes the refresh token single-use.
 		if err := utils.RevokeRefreshToken(ctx, h.Redis, claims); err != nil {
+			log.Printf("failed to revoke refresh token: %v", err)
 			responses.Error(w, http.StatusServiceUnavailable, "Unable to rotate refresh token!")
 			return
 		}
@@ -156,6 +163,7 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 		// Generate a fresh Access Token
 		newAccessToken, err := h.TokenMaker.GenerateAccessToken(claims.UserId, claims.Username, 15*time.Minute)
 		if err != nil {
+			log.Printf("failed to issue new access token: %v", err)
 			responses.Error(w, http.StatusInternalServerError, "Failed to issue new access token!")
 			return
 		}
@@ -163,6 +171,7 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 		// Generate a new refresh token.
 		newRefreshToken, err := h.TokenMaker.GenerateRefreshToken(claims.UserId, claims.Username, 7*24*time.Hour)
 		if err != nil {
+			log.Printf("failed to issue new refresh token: %v", err)
 			responses.Error(w, http.StatusInternalServerError, "Failed to issue new refresh token!")
 			return
 		}
