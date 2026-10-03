@@ -140,8 +140,13 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 		}
 
 		// upload profile picture
-		// (10 << 20); Limit file upload to 10 MB
-		if err := r.ParseMultipartForm(10 << 20); err != nil {
+		const maxFileSize = utils.MaxProfileImageSize
+		r.Body = http.MaxBytesReader(w, r.Body, maxFileSize)
+		if err := r.ParseMultipartForm(maxFileSize); err != nil {
+			if utils.IsRequestBodyTooLarge(err) {
+				responses.Error(w, http.StatusBadRequest, "Uploaded profile picture is too large!")
+				return
+			}
 			responses.Error(w, http.StatusBadRequest, "Failed to parse multipart form!")
 			return
 		}
