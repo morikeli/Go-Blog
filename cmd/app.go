@@ -1,9 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
@@ -84,3 +88,29 @@ func (a *App) Run(cfg *config.Config) (*App, error) {
 	}, nil
 }
 
+func (a *App) Start(port string) error {
+	// Channel to signal server startup errors
+	serverErrors := make(chan error, 1)
+
+	// Start server in a non-blocking goroutine
+	go func() {
+		log.Printf("Server starting on port %s...\n", port)
+		if err := a.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			serverErrors <- err
+		}
+	}()
+
+	// Listen for OS signals for graceful shutdown
+	shutdownSig := make(chan os.Signal, 1)
+	signal.Notify(shutdownSig, os.Interrupt, syscall.SIGTERM)
+
+	// Block until a signal or server startup error is received
+	select {
+	case err := <-serverErrors:
+		return fmt.Errorf("Server startup failed: %w", err)
+
+	case sig := <-shutdownSig:
+		log.Printf("Received signal '%v'. Initiating graceful shutdown...", sig)
+		return a.shutdown()
+	}
+}
