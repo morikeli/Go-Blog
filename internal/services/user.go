@@ -72,21 +72,12 @@ func (s *UserService) UpdateProfile(
 	username = strings.TrimSpace(username)
 
 	if username != "" {
-		params.Username = pgtype.Text{
-			String: username,
-			Valid:  true,
-		}
+		params.Username = pgtype.Text{String: username, Valid: true}
 	}
 
 	if profilePhoto != nil {
-		params.ProfilePhoto = pgtype.Text{
-			String: *profilePhoto,
-			Valid:  true,
-		}
+		params.ProfilePhoto = pgtype.Text{String: *profilePhoto, Valid: true}
 	}
 
-	return s.UserRepository.UpdateUserProfile(
-		ctx,
-		params,
-	)
+	return s.UserRepository.UpdateUserProfile(ctx, params)
 }
