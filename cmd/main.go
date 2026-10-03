@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/morikeli/golangrestapi/internal/config"
 	"github.com/morikeli/golangrestapi/internal/db"
 	"github.com/morikeli/golangrestapi/internal/handlers"
@@ -21,6 +22,12 @@ func main() {
 
 	if err != nil {
 		log.Fatalf("Failed to load project configuration file: %v", err)
+	}
+
+	// Initialize Cloudinary client once during application startup
+	cld, err := cloudinary.NewFromURL(cfg.CloudinaryURL)
+	if err != nil {
+		log.Fatal("Failed to initialize Cloudinary client: %v", err)
 	}
 
 	// connect to db
@@ -46,6 +53,7 @@ func main() {
 	handler := handlers.NewHandler(tokenMaker,
 		redisClient,
 		cfg,
+		cld,
 		authService,
 		userService,
 	)
