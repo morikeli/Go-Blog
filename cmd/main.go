@@ -1,9 +1,14 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
@@ -33,7 +38,6 @@ func main() {
 
 	// connect to db
 	database := db.ConnectDb(cfg.DatabaseURL)
-	defer database.Close()
 
 	// connect to redis
 	redisClient := db.ConnectRedis(cfg.RedisAddr, cfg.RedisPassword)
@@ -70,16 +74,58 @@ func main() {
 	// server address
 	serverAddr := fmt.Sprintf(":%s", cfg.ServerPort)
 	server := &http.Server{
-		Addr:    serverAddr,
-		Handler: mux,
-		ReadTimeout:  10 * time.Second,	// Timeout for reading request headers & body
-		WriteTimeout: 10 * time.Second,	// Timeout for writing response
-		IdleTimeout:  time.Minute,	// Timeout for keep-alive connections
+		Addr:         serverAddr,
+		Handler:      mux,
+		ReadTimeout:  10 * time.Second, // Timeout for reading request headers & body
+		WriteTimeout: 10 * time.Second, // Timeout for writing response
+		IdleTimeout:  time.Minute,      // Timeout for keep-alive connections
 	}
 
-	fmt.Printf("Server started on port %s\n", cfg.ServerPort)
+	// Channel to signal server startup errors
+	serverErrors := make(chan error, 1)
 
-	if err := server.ListenAndServe(); err != nil {
-		log.Fatalf("Server failed to start! Error: %v", err)
+	// Start server in a non-blocking goroutine
+	go func() {
+		log.Printf("Server starting on port %s...\n", cfg.ServerPort)
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			serverErrors <- err
+		}
+	}()
+
+	// 8. Listen for OS signals for graceful shutdown
+	shutdownSig := make(chan os.Signal, 1)
+	signal.Notify(shutdownSig, os.Interrupt, syscall.SIGTERM)
+
+	// Block until a signal or server startup error is received
+	select {
+	case err := <-serverErrors:
+		log.Fatalf("Server startup failed: %v", err)
+
+	case sig := <-shutdownSig:
+		log.Printf("Received signal '%v'. Initiating graceful shutdown...", sig)
+
+		// Create a timeout context for the shutdown process (e.g., 10 seconds)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		// Stop accepting new connections and wait for active requests to drain
+		if err := server.Shutdown(ctx); err != nil {
+			log.Printf("HTTP server force shutdown error: %v", err)
+			if err := server.Close(); err != nil {
+				log.Printf("Error closing HTTP server: %v", err)
+			}
+		}
+
+		// Close database and Redis connections AFTER HTTP server has drained requests
+		database.Close()
+		log.Println("Database connection closed successfully.")
+
+		if err := redisClient.Close(); err != nil {
+			log.Printf("Error closing Redis client: %v", err)
+		} else {
+			log.Println("Redis client connection closed successfully.")
+		}
+
+		log.Println("Graceful shutdown complete.")
 	}
 }
