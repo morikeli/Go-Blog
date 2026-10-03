@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS blogs (
     id BIGSERIAL PRIMARY KEY,
     title VARCHAR(150) NOT NULL,
     content TEXT NOT NULL,
-    user_id INTEGER NOT NULL,
+    user_id BIGSERIAL NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     FOREIGN KEY (user_id) REFERENCES users(id),
