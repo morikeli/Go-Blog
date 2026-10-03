@@ -89,7 +89,7 @@ func (a *App) Run(cfg *config.Config) (*App, error) {
 	}, nil
 }
 
-func (a *App) Start(port string) error {
+func (a *App) Run(port string) error {
 	// Channel to signal server startup errors
 	serverErrors := make(chan error, 1)
 
