@@ -24,7 +24,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			log.Printf("failed to decode request body: %v", err)
 
-			if utils.IsJSONBodyTooLarge(err) {
+			if utils.IsRequestBodyTooLarge(err) {
 				responses.Error(w, http.StatusRequestEntityTooLarge, "Request body too large!")
 				return
 			}
@@ -94,7 +94,7 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			log.Printf("failed to decode request body: %v", err)
 
-			if utils.IsJSONBodyTooLarge(err) {
+			if utils.IsRequestBodyTooLarge(err) {
 				responses.Error(w, http.StatusRequestEntityTooLarge, "Request body too large!")
 				return
 			}
