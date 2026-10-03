@@ -38,7 +38,6 @@ func main() {
 
 	// connect to db
 	database := db.ConnectDb(cfg.DatabaseURL)
-	defer database.Close()
 
 	// connect to redis
 	redisClient := db.ConnectRedis(cfg.RedisAddr, cfg.RedisPassword)
