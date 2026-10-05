@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/morikeli/golangrestapi/internal/repositories"
@@ -84,5 +85,20 @@ func (s *UserService) UpdateProfile(
 		params.ProfilePhoto = pgtype.Text{String: *profilePhoto, Valid: true}
 	}
 
-	return s.UserRepository.UpdateUserProfile(ctx, params)
+	user, err := s.UserRepository.UpdateUserProfile(ctx, params)
+
+	if err != nil {
+		var pgErr *pgconn.PgError
+
+		// Check if the error is a duplicate username constraint violation
+		if errors.As(err, pgErr) {
+			if strings.Contains(pgErr.ConstraintName, "username_key") {
+				return store.UpdateUserProfileRow{}, ErrDuplicateUsername
+			}
+		}
+
+		// Return the error if it's not a duplicate username constraint violation
+		return store.UpdateUserProfileRow{}, err
+	}
+	return user, nil
 }
