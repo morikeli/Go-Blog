@@ -35,7 +35,11 @@ func NewApp(cfg *config.Config) (*App, error) {
 	database := db.ConnectDb(cfg.DatabaseURL)
 
 	// connect to redis
-	redisClient := db.ConnectRedis(cfg.RedisAddr, cfg.RedisPassword)
+	redisClient, err := db.ConnectRedis(cfg.RedisAddr, cfg.RedisPassword)
+	if err != nil {
+		database.Close()
+		return nil, fmt.Errorf("Redis initialization failed: %w", err)
+	}
 
 	// Initialize Cloudinary client once during application startup
 	cld, err := cloudinary.NewFromURL(cfg.CloudinaryURL)
