@@ -36,7 +36,7 @@ func NewApp(cfg *config.Config) (*App, error) {
 	defer cancel()
 
 	// connect to db
-	database, err := db.ConnectDb(cfg.DatabaseURL)
+	database, err := db.ConnectDb(initCtx, cfg.DatabaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("database initialization failed: %w", err)
 	}
