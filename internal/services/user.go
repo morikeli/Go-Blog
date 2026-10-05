@@ -91,7 +91,7 @@ func (s *UserService) UpdateProfile(
 		var pgErr *pgconn.PgError
 
 		// Check if the error is a duplicate username constraint violation
-		if errors.As(err, pgErr) {
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			if strings.Contains(pgErr.ConstraintName, "username_key") {
 				return store.UpdateUserProfileRow{}, ErrDuplicateUsername
 			}
