@@ -27,23 +27,23 @@ func ValidateRequest(payload interface{}) error {
 		field := strings.ToLower(fieldErr.Field())
 
 		switch fieldErr.Tag() {
-			case "required":
+		case "required":
 			errorMessages = append(errorMessages, fmt.Sprintf("%s is required!", field))
 
-			case "email":
+		case "email":
 			errorMessages = append(errorMessages, fmt.Sprintf("%s must be a valid email address!", field))
 
-			case "min":
+		case "min":
 			errorMessages = append(errorMessages, fmt.Sprintf("%s must be at least %s characters!", field, fieldErr.Param()))
 
-			case "max":
+		case "max":
 			errorMessages = append(errorMessages, fmt.Sprintf("%s must not exceed %s characters!", field, fieldErr.Param()))
 
-			default:
+		default:
 			errorMessages = append(errorMessages, fmt.Sprintf("Invalid %s!", field))
 		}
-		
-	} 
+
+	}
 
 	return errors.New(strings.Join(errorMessages, ", "))
 }
