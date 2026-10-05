@@ -11,10 +11,6 @@ import (
 	"github.com/morikeli/golangrestapi/internal/store"
 )
 
-var (
-	ErrUserNotFound = errors.New("User not found!")
-)
-
 type UserService struct {
 	UserRepository repositories.UserRepository
 }
