@@ -5,14 +5,12 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/morikeli/golangrestapi/internal/repositories"
 	"github.com/morikeli/golangrestapi/internal/store"
-)
-
-var (
-	ErrUserNotFound = errors.New("User not found!")
 )
 
 type UserService struct {
@@ -30,7 +28,15 @@ func (s *UserService) GetUser(ctx context.Context, userID int64) (store.GetUserB
 	user, err := s.UserRepository.GetUserById(ctx, userID)
 
 	if err != nil {
-		return store.GetUserByIdRow{}, ErrUserNotFound
+		// [NOTE] In cases where the db is unavailable (e.g., network issue, db goes down),
+		// the User not found error may be returned but the user exists.
+		//
+		// Check if the error is due to no rows found to avoid returning a generic error
+		if errors.Is(err, pgx.ErrNoRows) {
+			return store.GetUserByIdRow{}, ErrUserNotFound
+		}
+		// Return the error if it's not due to no rows found
+		return store.GetUserByIdRow{}, err
 	}
 
 	return user, nil
@@ -79,5 +85,20 @@ func (s *UserService) UpdateProfile(
 		params.ProfilePhoto = pgtype.Text{String: *profilePhoto, Valid: true}
 	}
 
-	return s.UserRepository.UpdateUserProfile(ctx, params)
+	user, err := s.UserRepository.UpdateUserProfile(ctx, params)
+
+	if err != nil {
+		var pgErr *pgconn.PgError
+
+		// Check if the error is a duplicate username constraint violation
+		if errors.As(err, pgErr) {
+			if strings.Contains(pgErr.ConstraintName, "username_key") {
+				return store.UpdateUserProfileRow{}, ErrDuplicateUsername
+			}
+		}
+
+		// Return the error if it's not a duplicate username constraint violation
+		return store.UpdateUserProfileRow{}, err
+	}
+	return user, nil
 }

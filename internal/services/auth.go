@@ -12,12 +12,6 @@ import (
 	"github.com/morikeli/golangrestapi/internal/utils"
 )
 
-var (
-	ErrInvalidCredentials = errors.New("Invalid credentials!")
-	ErrDuplicateEmail     = errors.New("Email is already registered!")
-	ErrDuplicateUsername  = errors.New("Username is already taken!")
-)
-
 // AuthService contains authentication-related business logic.
 type AuthService struct {
 	UserRepository repositories.UserRepository

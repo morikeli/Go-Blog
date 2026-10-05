@@ -2,14 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/morikeli/golangrestapi/internal/dtos/requests"
 	"github.com/morikeli/golangrestapi/internal/dtos/responses"
-	"github.com/morikeli/golangrestapi/internal/services"
 	"github.com/morikeli/golangrestapi/internal/utils"
 )
 
@@ -19,7 +17,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 
 		// Limit the JSON body size to prevent DoS attacks
 		utils.LimitJSONBody(w, r)
-		
+
 		var req requests.LoginRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			log.Printf("failed to decode request body: %v", err)
@@ -28,7 +26,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 				responses.Error(w, http.StatusRequestEntityTooLarge, "Request body too large!")
 				return
 			}
-			
+
 			responses.Error(w, http.StatusBadRequest, "Invalid request body!")
 			return
 		}
@@ -42,17 +40,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 		result, err := h.AuthService.Login(ctx, req.Username, req.Password)
 
 		if err != nil {
-			if errors.Is(err, services.ErrInvalidCredentials) {
-				responses.Error(w, http.StatusUnauthorized, "Invalid credentials provided!")
-				return
-			}
-			
-			log.Printf("failed to authenticate user: %v", err)
-			responses.Error(
-				w,
-				http.StatusInternalServerError,
-				"Oh snap! We could not authenticate you at the moment. Please try again later.",
-			)
+			handleServiceError(w, err)
 			return
 		}
 
@@ -88,7 +76,7 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 		// create context
 		ctx := r.Context()
 
-		utils.LimitJSONBody(w,  r)
+		utils.LimitJSONBody(w, r)
 
 		var req requests.SignupRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -98,7 +86,7 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 				responses.Error(w, http.StatusRequestEntityTooLarge, "Request body too large!")
 				return
 			}
-			
+
 			responses.Error(w, http.StatusBadRequest, "Invalid request body!")
 			return
 		}
@@ -111,16 +99,7 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 		err := h.AuthService.Signup(ctx, req.Username, req.Email, req.Password)
 
 		if err != nil {
-			if errors.Is(err, services.ErrDuplicateEmail) || errors.Is(err, services.ErrDuplicateUsername) {
-				responses.Error(w, http.StatusConflict, "Username or email already taken!")
-				return
-			}
-
-			log.Printf("failed to signup user: %v", err)
-			responses.Error(
-				w, http.StatusInternalServerError,
-				"Oh no! We could not create your account. Please try again later.",
-			)
+			handleServiceError(w, err)
 			return
 		}
 
