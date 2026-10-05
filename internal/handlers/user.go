@@ -103,7 +103,7 @@ func (h *Handler) UserProfileHandler() http.HandlerFunc {
 		user, err := h.UserService.GetUser(ctx, userId)
 
 		if err != nil {
-			responses.Error(w, http.StatusNotFound, "User profile not found!")
+			handleServiceError(w, err)
 			return
 		}
 
@@ -185,7 +185,7 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 					responses.Error(w, http.StatusUnsupportedMediaType, "Unsupported image format: only .jpeg, .png, .webp allowed!")
 
 				default:
-					responses.Error(w, http.StatusInternalServerError, "Invalid profile photo uploaded!")
+					responses.Error(w, http.StatusBadRequest, "Invalid profile photo uploaded!")
 				}
 				return
 			}
@@ -211,8 +211,7 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 		// update user profile
 		updateUser, err := h.UserService.UpdateProfile(ctx, userId, req.Username, profilePhoto)
 		if err != nil {
-			log.Printf("failed to update user profile: %v", err)
-			responses.Error(w, http.StatusInternalServerError, "Failed to update user profile!")
+			handleServiceError(w, err)
 			return
 		}
 
