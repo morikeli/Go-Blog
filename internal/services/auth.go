@@ -40,7 +40,7 @@ type LoginResult struct {
 // Login authenticates a user and generates access/refresh tokens.
 func (s *AuthService) Login(ctx context.Context, usernameOrEmail string, password string) (*LoginResult, error) {
 
-	usernameOrEmail = strings.TrimSpace(usernameOrEmail)
+	usernameOrEmail = strings.ToLower(strings.TrimSpace(usernameOrEmail))
 
 	user, err := s.UserRepository.GetUserByUsernameOrEmail(ctx, usernameOrEmail)
 
