@@ -185,7 +185,7 @@ func (h *Handler) UpdateUserProfileHandler() http.HandlerFunc {
 					responses.Error(w, http.StatusUnsupportedMediaType, "Unsupported image format: only .jpeg, .png, .webp allowed!")
 
 				default:
-					responses.Error(w, http.StatusBadRequest, "Invalid profile photo uploaded!")
+					responses.Error(w, http.StatusUnsupportedMediaType, "Invalid profile photo uploaded!")
 				}
 				return
 			}
