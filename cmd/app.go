@@ -31,6 +31,10 @@ type App struct {
 }
 
 func NewApp(cfg *config.Config) (*App, error) {
+	// Root context for app initialization
+	initCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	// connect to db
 	database, err := db.ConnectDb(cfg.DatabaseURL)
 	if err != nil {
