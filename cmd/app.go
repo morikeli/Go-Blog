@@ -79,7 +79,7 @@ func NewApp(cfg *config.Config) (*App, error) {
 
 	// routers
 	routes.SetupHealthRoute(mux, handler)
-	routes.SetupAuthRoutes(mux, handler)
+	routes.SetupAuthRoutes(mux, handler, redisClient)
 	routes.SetupUserRoutes(mux, handler)
 
 	// server address

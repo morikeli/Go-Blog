@@ -4,11 +4,14 @@ import (
 	"net/http"
 
 	"github.com/morikeli/golangrestapi/internal/handlers"
+	"github.com/morikeli/golangrestapi/internal/middlewares"
+	"github.com/redis/go-redis/v9"
 )
 
-func SetupAuthRoutes(mux *http.ServeMux, handler *handlers.Handler) {
-	mux.HandleFunc("POST /auth/signup", handler.SignupHandler())
-	mux.HandleFunc("POST /auth/login", handler.LoginHandler())
-	mux.HandleFunc("POST /auth/token/refresh", handler.RefreshTokenHandler())
-	mux.HandleFunc("POST /auth/logout", handler.LogoutHandler())
+func SetupAuthRoutes(mux *http.ServeMux, handler *handlers.Handler, redisClient *redis.Client) {
+	authRateLimit := middlewares.AuthRateLimit(redisClient)
+	mux.Handle("POST /auth/signup", authRateLimit(http.HandlerFunc(handler.SignupHandler())))
+	mux.Handle("POST /auth/login", authRateLimit(http.HandlerFunc(handler.LoginHandler())))
+	mux.Handle("POST /auth/token/refresh", authRateLimit(http.HandlerFunc(handler.RefreshTokenHandler())))
+	mux.Handle("POST /auth/logout", authRateLimit(http.HandlerFunc(handler.LogoutHandler())))
 }
