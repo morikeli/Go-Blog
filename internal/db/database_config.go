@@ -2,22 +2,23 @@ package db
 
 import (
 	"context"
-	"log"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func ConnectDb(databaseURL string) *pgxpool.Pool {
+func ConnectDb(databaseURL string) (*pgxpool.Pool, error) {
 	ctx := context.Background()
 	pool, err := pgxpool.New(ctx, databaseURL)
 
 	if err != nil {
-		log.Fatal("[ERROR]: Failed to connect to database", err)
+		return nil, fmt.Errorf("failed to create database connection pool: %w", err)
 	}
 
 	if err := pool.Ping(ctx); err != nil {
-		log.Fatal("[ERROR]: Failed to ping database", err)
+		pool.Close()	// close the pool before returning an error
+		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	return pool
+	return pool, nil
 }

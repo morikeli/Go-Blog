@@ -40,7 +40,10 @@ func NewApp(cfg *config.Config) (*App, error) {
 	// Initialize Cloudinary client once during application startup
 	cld, err := cloudinary.NewFromURL(cfg.CloudinaryURL)
 	if err != nil {
-		log.Fatal("Failed to initialize Cloudinary client: %v", err)
+		_ = redisClient.Close()
+		database.Close()
+		
+		return nil,fmt.Errorf("Failed to initialize Cloudinary client: %v", err)
 	}
 
 	queries := store.New(database)
