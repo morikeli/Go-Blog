@@ -12,7 +12,7 @@ type Blog struct {
 	ID        int64
 	Title     string
 	Content   string
-	UserID    int32
+	UserID    int64
 	CreatedAt pgtype.Timestamptz
 	UpdatedAt pgtype.Timestamptz
 }

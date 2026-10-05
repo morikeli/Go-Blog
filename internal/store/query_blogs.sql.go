@@ -18,7 +18,7 @@ RETURNING id, title, content, user_id, created_at, updated_at
 type CreateBlogParams struct {
 	Title   string
 	Content string
-	UserID  int32
+	UserID  int64
 }
 
 func (q *Queries) CreateBlog(ctx context.Context, arg CreateBlogParams) (Blog, error) {

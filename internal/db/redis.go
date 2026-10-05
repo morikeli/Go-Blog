@@ -3,13 +3,12 @@ package db
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
-func ConnectRedis(addr, password string) *redis.Client {
+func ConnectRedis(addr, password string) (*redis.Client, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: password,
@@ -20,9 +19,10 @@ func ConnectRedis(addr, password string) *redis.Client {
 	defer cancel()
 
 	if err := rdb.Ping(ctx).Err(); err != nil {
-		log.Fatal("Failed to connect to Redis at %s: %v", addr, err)
+		_ = rdb.Close()
+		return nil, fmt.Errorf("failed to connect to Redis at %s: %w", addr, err)
 	}
 
 	fmt.Println("Successfully connected to Redis!")
-	return rdb
+	return rdb, nil
 }

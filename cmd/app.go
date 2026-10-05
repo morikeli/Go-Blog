@@ -32,15 +32,25 @@ type App struct {
 
 func NewApp(cfg *config.Config) (*App, error) {
 	// connect to db
-	database := db.ConnectDb(cfg.DatabaseURL)
+	database, err := db.ConnectDb(cfg.DatabaseURL)
+	if err != nil {
+		return nil, fmt.Errorf("database initialization failed: %w", err)
+	}
 
 	// connect to redis
-	redisClient := db.ConnectRedis(cfg.RedisAddr, cfg.RedisPassword)
+	redisClient, err := db.ConnectRedis(cfg.RedisAddr, cfg.RedisPassword)
+	if err != nil {
+		database.Close()
+		return nil, fmt.Errorf("Redis initialization failed: %w", err)
+	}
 
 	// Initialize Cloudinary client once during application startup
 	cld, err := cloudinary.NewFromURL(cfg.CloudinaryURL)
 	if err != nil {
-		log.Fatal("Failed to initialize Cloudinary client: %v", err)
+		_ = redisClient.Close()
+		database.Close()
+		
+		return nil,fmt.Errorf("Failed to initialize Cloudinary client: %v", err)
 	}
 
 	queries := store.New(database)
