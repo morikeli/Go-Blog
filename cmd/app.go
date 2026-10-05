@@ -32,7 +32,10 @@ type App struct {
 
 func NewApp(cfg *config.Config) (*App, error) {
 	// connect to db
-	database := db.ConnectDb(cfg.DatabaseURL)
+	database, err := db.ConnectDb(cfg.DatabaseURL)
+	if err != nil {
+		return nil, fmt.Errorf("database initialization failed: %w", err)
+	}
 
 	// connect to redis
 	redisClient, err := db.ConnectRedis(cfg.RedisAddr, cfg.RedisPassword)
