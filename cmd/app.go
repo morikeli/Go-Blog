@@ -25,8 +25,8 @@ import (
 )
 
 type App struct {
-	server   *http.Server
-	database *pgxpool.Pool
+	server      *http.Server
+	database    *pgxpool.Pool
 	redisClient *redis.Client
 }
 
@@ -83,8 +83,8 @@ func NewApp(cfg *config.Config) (*App, error) {
 	}
 
 	return &App{
-		server:   server,
-		database: database,
+		server:      server,
+		database:    database,
 		redisClient: redisClient,
 	}, nil
 }

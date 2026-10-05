@@ -17,7 +17,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 
 		// Limit the JSON body size to prevent DoS attacks
 		utils.LimitJSONBody(w, r)
-		
+
 		var req requests.LoginRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			log.Printf("failed to decode request body: %v", err)
@@ -26,7 +26,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 				responses.Error(w, http.StatusRequestEntityTooLarge, "Request body too large!")
 				return
 			}
-			
+
 			responses.Error(w, http.StatusBadRequest, "Invalid request body!")
 			return
 		}
@@ -76,7 +76,7 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 		// create context
 		ctx := r.Context()
 
-		utils.LimitJSONBody(w,  r)
+		utils.LimitJSONBody(w, r)
 
 		var req requests.SignupRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -86,7 +86,7 @@ func (h *Handler) SignupHandler() http.HandlerFunc {
 				responses.Error(w, http.StatusRequestEntityTooLarge, "Request body too large!")
 				return
 			}
-			
+
 			responses.Error(w, http.StatusBadRequest, "Invalid request body!")
 			return
 		}

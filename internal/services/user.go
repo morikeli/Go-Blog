@@ -28,9 +28,9 @@ func (s *UserService) GetUser(ctx context.Context, userID int64) (store.GetUserB
 	user, err := s.UserRepository.GetUserById(ctx, userID)
 
 	if err != nil {
-		// [NOTE] In cases where the db is unavailable (e.g., network issue, db goes down), 
-		// the User not found error may be returned but the user exists. 
-		// 
+		// [NOTE] In cases where the db is unavailable (e.g., network issue, db goes down),
+		// the User not found error may be returned but the user exists.
+		//
 		// Check if the error is due to no rows found to avoid returning a generic error
 		if errors.Is(err, pgx.ErrNoRows) {
 			return store.GetUserByIdRow{}, ErrUserNotFound
