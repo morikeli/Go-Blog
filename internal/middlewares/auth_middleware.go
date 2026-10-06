@@ -9,14 +9,6 @@ import (
 	"github.com/morikeli/golangrestapi/internal/utils"
 )
 
-// Define custom context keys to avoid collisions
-type contextKey string
-
-const (
-	UserIDKey   contextKey = "userId"
-	UsernameKey contextKey = "username"
-)
-
 func AuthMiddleware(tokenMaker *utils.TokenMaker) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
