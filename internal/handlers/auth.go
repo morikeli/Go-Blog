@@ -4,12 +4,15 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/morikeli/golangrestapi/internal/dtos/requests"
 	"github.com/morikeli/golangrestapi/internal/dtos/responses"
 	"github.com/morikeli/golangrestapi/internal/utils"
 )
+
+const refreshTokenCookiePath = "/auth"
 
 func (h *Handler) LoginHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +51,7 @@ func (h *Handler) LoginHandler() http.HandlerFunc {
 		http.SetCookie(w, &http.Cookie{
 			Name:     "refresh_token",
 			Value:    result.RefreshToken,
-			Path:     "/auth/token/refresh", // Restrict cookie scope exclusively to the refresh endpoint
+			Path:     refreshTokenCookiePath, // Restrict cookie scope exclusively to the refresh endpoint
 			Expires:  time.Now().Add(7 * 24 * time.Hour),
 			HttpOnly: true,                 // JavaScript cannot read this cookie (XSS protection)
 			Secure:   true,                 // Requires HTTPS in production
@@ -179,7 +182,7 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 		http.SetCookie(w, &http.Cookie{
 			Name:     "refresh_token",
 			Value:    newRefreshToken,
-			Path:     "/auth/token/refresh",
+			Path:     refreshTokenCookiePath,
 			HttpOnly: true,
 			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
@@ -224,8 +227,7 @@ func (h *Handler) LogoutHandler() http.HandlerFunc {
 		http.SetCookie(w, &http.Cookie{
 			Name:  "refresh_token",
 			Value: "", // Set the value to an empty string to wipe out the actual JWT payload.
-			Path:  "/auth/token/refresh",
-
+			Path:  refreshTokenCookiePath,
 			// Sets the cookie's expiration date to January 1, 1970 UTC (Unix Epoch).
 			// Because this timestamp is decades in the past, the browser immediately deletes the cookie.
 			Expires:  time.Unix(0, 0),
