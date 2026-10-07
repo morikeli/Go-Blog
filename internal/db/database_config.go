@@ -7,8 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func ConnectDb(databaseURL string) (*pgxpool.Pool, error) {
-	ctx := context.Background()
+func ConnectDb(ctx context.Context, databaseURL string) (*pgxpool.Pool, error) {
 	pool, err := pgxpool.New(ctx, databaseURL)
 
 	if err != nil {
@@ -16,7 +15,7 @@ func ConnectDb(databaseURL string) (*pgxpool.Pool, error) {
 	}
 
 	if err := pool.Ping(ctx); err != nil {
-		pool.Close()	// close the pool before returning an error
+		pool.Close() // close the pool before returning an error
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
