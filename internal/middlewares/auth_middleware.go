@@ -32,12 +32,6 @@ func AuthMiddleware(tokenMaker *utils.TokenMaker) func(http.Handler) http.Handle
 				return
 			}
 
-			// Ensure it's strictly an Access Token
-			if claims.TokenType != utils.AccessToken {
-				responses.Error(w, http.StatusUnauthorized, "Provided token is not an access token!")
-				return
-			}
-
 			// Inject user info into r.Context() and pass down execution chain
 			ctx := context.WithValue(r.Context(), UserIDKey, claims.UserId)
 			ctx = context.WithValue(ctx, UsernameKey, claims.Username)
