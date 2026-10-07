@@ -112,16 +112,16 @@ func (a *App) Run(port string) error {
 	}()
 
 	// Listen for OS signals for graceful shutdown
-	shutdownSig := make(chan os.Signal, 1)
-	signal.Notify(shutdownSig, os.Interrupt, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
 	// Block until a signal or server startup error is received
 	select {
 	case err := <-serverErrors:
 		return fmt.Errorf("Server startup failed: %w", err)
 
-	case sig := <-shutdownSig:
-		log.Printf("Received signal '%v'. Initiating graceful shutdown...", sig)
+	case <-ctx.Done():
+		log.Printf("Received signal '%v'. Initiating graceful shutdown...", ctx.Err())
 		return a.shutdown()
 	}
 }
