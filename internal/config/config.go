@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -17,6 +18,7 @@ type Config struct {
 	RedisAddr     string
 	RedisPassword string
 	CloudinaryURL string
+	CORSOrigins   []string
 }
 
 func LoadConfig() (*Config, error) {
@@ -34,6 +36,7 @@ func LoadConfig() (*Config, error) {
 		RedisAddr:     os.Getenv("REDIS_ADDRESS"),
 		RedisPassword: os.Getenv("REDIS_PASSWORD"),
 		CloudinaryURL: os.Getenv("CLOUDINARY_URL"),
+		CORSOrigins:   strings.Split(os.Getenv("CORS_ORIGIN"), ","),
 	}
 
 	return config, nil
