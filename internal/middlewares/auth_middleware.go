@@ -18,13 +18,14 @@ func AuthMiddleware(tokenMaker *utils.TokenMaker) func(http.Handler) http.Handle
 				responses.Error(w, http.StatusUnauthorized, "Authorization header is required!")
 				return
 			}
-
-			// Parse "Bearer <token>" format
-			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
-			if tokenStr == authHeader || tokenStr == "" {
+			
+			parts := strings.Fields(authHeader)
+			if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
 				responses.Error(w, http.StatusUnauthorized, "Invalid authorization header format!")
 				return
 			}
+
+			tokenStr := parts[1]
 
 			claims, err := tokenMaker.VerifyAccessToken(tokenStr)
 			if err != nil {
