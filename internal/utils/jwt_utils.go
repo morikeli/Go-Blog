@@ -138,11 +138,7 @@ func (m *TokenMaker) VerifyRefreshToken(tokenString string) (*Claims, error) {
 }
 
 func RevokeRefreshToken(ctx context.Context, rdb *redis.Client, claims *Claims) error {
-	if claims == nil || claims.ID == "" {
-		return nil
-	}
-
-	if claims.ExpiresAt == nil {
+	if claims == nil || claims.ID == "" || claims.ExpiresAt == nil {
 		return nil
 	}
 
