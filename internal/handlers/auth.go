@@ -134,8 +134,11 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 		}
 
 		// Check whether this refresh token has already been revoked
-		blacklistKey := "blacklist:" + claims.ID
-		exists, err := h.Redis.Exists(ctx, blacklistKey).Result()
+		//
+		// Atomically consume the refresh token before issuing a replacement.
+		// SetNX guarantees that concurrent refresh requests cannot both consume
+		// the same token and receive separate replacement tokens.
+		consumed, err := utils.ConsumeRefreshToken(ctx, h.Redis, claims)
 
 		// If Redis fails, trigger an early exit with HTTP status 533 Service Unavailable
 		if err != nil {
@@ -144,8 +147,8 @@ func (h *Handler) RefreshTokenHandler() http.HandlerFunc {
 			return
 		}
 
-		if exists > 0 {
-			responses.Error(w, http.StatusUnauthorized, "Refresh token has been revoked!")
+		if !consumed {
+			responses.Error(w, http.StatusUnauthorized, "Refresh token has been revoked or already used!")
 			return
 		}
 

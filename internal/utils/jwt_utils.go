@@ -17,6 +17,8 @@ const (
 	RefreshToken TokenType = "refresh"
 )
 
+const refreshTokenBlacklistPrefix = "blacklist:"
+
 type TokenMaker struct {
 	secretKey []byte
 	issuer    string
@@ -150,7 +152,33 @@ func RevokeRefreshToken(ctx context.Context, rdb *redis.Client, claims *Claims) 
 		return nil
 	}
 
-	blacklistKey := "blacklist:" + claims.ID
+	blacklistKey := refreshTokenBlacklistPrefix + claims.ID
 
 	return rdb.Set(ctx, blacklistKey, "revoked", remainingDuration).Err()
+}
+
+// ConsumeRefreshToken atomically marks a refresh token as revoked.
+//
+// SetNX is important here because checking Redis with EXISTS and then calling
+// SET in separate commands introduces a race condition: two concurrent refresh
+// requests can both observe that the token has not been revoked yet and both
+// receive a new token.
+//
+// With SetNX, only the first request can create the blacklist key. Every
+// subsequent request receives consumed=false and must reject the token.
+func ConsumeRefreshToken(ctx context.Context, rdb *redis.Client, claims *Claims) (consumed bool, err error) {
+	if claims == nil || claims.ID == "" || claims.ExpiresAt == nil {
+		return false, nil
+	}
+
+	remainingDuration := time.Until(claims.ExpiresAt.Time)
+	if remainingDuration <= 0 {
+		return false, nil
+	}
+
+	blacklistKey := refreshTokenBlacklistPrefix + claims.ID
+
+	// SET key value NX EX is atomic in Redis. SetNX also applies the TTL so
+	// revoked-token entries disappear automatically when the JWT expires.
+	return rdb.SetNX(ctx, blacklistKey, "revoked", remainingDuration).Result()
 }
