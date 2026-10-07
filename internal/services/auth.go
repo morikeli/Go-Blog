@@ -33,8 +33,7 @@ type LoginResult struct {
 
 // Login authenticates a user and generates access/refresh tokens.
 func (s *AuthService) Login(ctx context.Context, usernameOrEmail string, password string) (*LoginResult, error) {
-
-	usernameOrEmail = strings.ToLower(strings.TrimSpace(usernameOrEmail))
+	usernameOrEmail = utils.NormalizeUsernameOrEmail(usernameOrEmail)
 
 	user, err := s.UserRepository.GetUserByUsernameOrEmail(ctx, usernameOrEmail)
 
@@ -67,8 +66,8 @@ func (s *AuthService) Login(ctx context.Context, usernameOrEmail string, passwor
 
 // Signup creates a new user.
 func (s *AuthService) Signup(ctx context.Context, username string, email string, password string) error {
-	username = strings.TrimSpace(username)
-	email = strings.ToLower(strings.TrimSpace(email))
+	username = utils.NormalizeUsernameOrEmail(username)
+	email = utils.NormalizeUsernameOrEmail(email)
 
 	hashedPassword, err := utils.HashPassword(password)
 	if err != nil {
