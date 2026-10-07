@@ -16,6 +16,7 @@ import (
 	"github.com/morikeli/golangrestapi/internal/config"
 	"github.com/morikeli/golangrestapi/internal/db"
 	"github.com/morikeli/golangrestapi/internal/handlers"
+	"github.com/morikeli/golangrestapi/internal/middlewares"
 	"github.com/morikeli/golangrestapi/internal/repositories"
 	"github.com/morikeli/golangrestapi/internal/routes"
 	"github.com/morikeli/golangrestapi/internal/services"
@@ -86,11 +87,20 @@ func NewApp(cfg *config.Config) (*App, error) {
 	routes.SetupAuthRoutes(mux, handler, redisClient)
 	routes.SetupUserRoutes(mux, handler)
 
+	appHandler := middlewares.Chain(
+		mux,
+		middlewares.RequestIDMiddleware,
+		middlewares.RecoveryMiddleware,
+		middlewares.SecurityHeadersMiddleware(cfg.Environment == "production"),
+		middlewares.CORSMiddleware(cfg.CORSOrigins),
+		middlewares.LoggingMiddleware,
+	)
+
 	// server address
 	serverAddr := fmt.Sprintf(":%s", cfg.ServerPort)
 	server := &http.Server{
 		Addr:         serverAddr,
-		Handler:      mux,
+		Handler:      appHandler,
 		ReadTimeout:  10 * time.Second, // Timeout for reading request headers & body
 		WriteTimeout: 10 * time.Second, // Timeout for writing response
 		IdleTimeout:  time.Minute,      // Timeout for keep-alive connections
