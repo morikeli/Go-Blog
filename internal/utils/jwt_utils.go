@@ -17,7 +17,7 @@ const (
 	RefreshToken TokenType = "refresh"
 )
 
-const refreshTokenBlacklistPrefix = "blacklist:"
+const RefreshTokenBlacklistPrefix = "blacklist:"
 
 type TokenMaker struct {
 	secretKey []byte
