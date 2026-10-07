@@ -202,12 +202,22 @@ func (h *Handler) LogoutHandler() http.HandlerFunc {
 
 		cookie, err := r.Cookie("refresh_token")
 		if err == nil {
-			claims, err := h.TokenMaker.VerifyToken(cookie.Value)
-
-			if err == nil && claims.TokenType == utils.RefreshToken {
-				_ = utils.RevokeRefreshToken(ctx, h.Redis, claims)
+			if claims, err := h.TokenMaker.VerifyRefreshToken(cookie.Value); err == nil {
+				if err := utils.RevokeRefreshToken(ctx, h.Redis, claims); err != nil {
+					log.Printf("failed to revoke refresh token: %v", err)
+				}
 			}
 		}
+
+		// Revoke the access token (Authorization header)
+		if parts := strings.Fields(r.Header.Get("Authorization")); len(parts) == 2 && strings.EqualFold(parts[0], "Bearer") {
+			if claims, err := h.TokenMaker.VerifyAccessToken(parts[1]); err == nil {
+				if err := utils.RevokeRefreshToken(ctx, h.Redis, claims); err != nil {
+					log.Printf("failed to revoke access token: %v", err)
+				}
+			}
+		}
+
 
 		// Expire the cookie in user's browser
 		http.SetCookie(w, &http.Cookie{
