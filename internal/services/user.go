@@ -11,6 +11,7 @@ import (
 
 	"github.com/morikeli/golangrestapi/internal/repositories"
 	"github.com/morikeli/golangrestapi/internal/store"
+	"github.com/morikeli/golangrestapi/internal/utils"
 )
 
 type UserService struct {
@@ -75,7 +76,7 @@ func (s *UserService) UpdateProfile(
 		ID: userID,
 	}
 
-	username = strings.TrimSpace(username)
+	username = utils.NormalizeUsernameOrEmail(username)
 
 	if username != "" {
 		params.Username = pgtype.Text{String: username, Valid: true}
